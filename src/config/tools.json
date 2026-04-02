@@ -86,5 +86,13 @@
     "section": "converters",
     "description": "Convert numbers between bases.",
     "keywords": ["base", "binary", "hex", "octal", "decimal"]
+  },
+  {
+    "id": "textcsv",
+    "slug": "text-csv",
+    "label": "Text ↔ CSV",
+    "section": "converters",
+    "description": "Import/export and convert between plain text and CSV.",
+    "keywords": ["csv", "text", "import", "export", "convert"]
   }
 ]

@@ -12,4 +12,5 @@ export const toolLoaders = {
   urlcodec: lazy(() => import('../tools/url-converter/UrlConverterTool.jsx')),
   case: lazy(() => import('../tools/case-converter/CaseConverterTool.jsx')),
   numberbase: lazy(() => import('../tools/number-base-converter/NumberBaseConverterTool.jsx')),
+  textcsv: lazy(() => import('../tools/text-csv/TextCsvTool.jsx')),
 };

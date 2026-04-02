@@ -3,6 +3,7 @@ import TextPanel from '../../components/TextPanel.jsx';
 import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.js';
+import { downloadTextFile } from '../../utils/download.js';
 
 const SAMPLE = '{"name":"Developer Tools Hub","version":1,"enabled":true}';
 
@@ -48,6 +49,29 @@ export default function JsonFormatterTool() {
     await navigator.clipboard.writeText(output);
   };
 
+  const exportJson = () => {
+    if (!output || error) {
+      return;
+    }
+
+    downloadTextFile({
+      content: output,
+      filename: 'output.json',
+      mime: 'application/json;charset=utf-8',
+    });
+  };
+
+  const importJsonFile = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const text = await file.text();
+    setInput(text);
+    event.target.value = '';
+  };
+
   const controls = (
     <>
       <select
@@ -59,6 +83,23 @@ export default function JsonFormatterTool() {
         <option value="minify">Minify</option>
         <option value="validate">Validate</option>
       </select>
+      <label className="ui-btn cursor-pointer">
+        <input
+          type="file"
+          accept="application/json,text/plain,.json"
+          onChange={importJsonFile}
+          className="hidden"
+        />
+        Import
+      </label>
+      <button
+        type="button"
+        onClick={exportJson}
+        className="ui-btn"
+        disabled={!output || Boolean(error)}
+      >
+        Export JSON
+      </button>
       <button
         type="button"
         onClick={() => setInput('')}

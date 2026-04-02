@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
+import { downloadTextFile } from '../../utils/download.js';
 
 function createUuidV4Fallback() {
   const bytes = new Uint8Array(16);
@@ -53,6 +54,18 @@ export default function UuidGeneratorTool() {
     await navigator.clipboard.writeText(output);
   };
 
+  const downloadTxt = () => {
+    if (!output) {
+      return;
+    }
+
+    downloadTextFile({
+      content: output,
+      filename: `uuids-${batch.length}.txt`,
+      mime: 'text/plain;charset=utf-8',
+    });
+  };
+
   return (
     <ToolShell
       title="UUID Generator"
@@ -81,7 +94,25 @@ export default function UuidGeneratorTool() {
           Produces deterministic-size UUID batches with no external dependency.
         </div>
       }
-      output={<OutputPanel title="UUIDs" output={output} onCopy={copyOutput} copyDisabled={!output} meta={`${batch.length} values`} />}
+      output={
+        <OutputPanel
+          title="UUIDs"
+          output={output}
+          onCopy={copyOutput}
+          copyDisabled={!output}
+          meta={`${batch.length} values`}
+          actions={
+            <button
+              type="button"
+              onClick={downloadTxt}
+              disabled={!output}
+              className="ui-btn px-3 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Download
+            </button>
+          }
+        />
+      }
     />
   );
 }
