@@ -47,18 +47,25 @@ const TOOL_REGISTRY = {
 
 export default function App() {
   const [activeTool, setActiveTool] = useState('json');
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 'light';
+    }
+
+    const savedTheme = window.localStorage.getItem('dth-theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      return savedTheme;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
   const [isDeveloperInfoOpen, setIsDeveloperInfoOpen] = useState(false);
 
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem('dth-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-    setTheme(initialTheme);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    const isDark = theme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    document.body.classList.toggle('dark', isDark);
+    document.documentElement.setAttribute('data-theme', theme);
     window.localStorage.setItem('dth-theme', theme);
   }, [theme]);
 
@@ -66,30 +73,32 @@ export default function App() {
   const ActiveToolComponent = activeConfig.component;
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 px-3 py-5 sm:px-6 lg:px-8">
-      <header className="ui-card overflow-hidden p-5 backdrop-blur-sm sm:p-7">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
+    <main className={`mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 px-3 py-5 sm:px-6 lg:px-8 ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`}>
+      <header className="ui-card overflow-hidden p-5 backdrop-blur-sm sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.28em] text-teal-700 dark:text-cyan-300">Developer Tools Hub</p>
-            <h1 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Light, fast, developer-first toolbox.</h1>
+            <h1 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Code-ready tools, one clean workspace.</h1>
             <p className="ui-muted mt-2 max-w-3xl text-sm sm:text-base">
-              Responsive utility workspace built for instant feedback, low overhead, and modular scalability.
+              Responsive utility workspace built for instant feedback, low overhead, and terminal-like code clarity.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
-            className="ui-btn"
-          >
-            {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsDeveloperInfoOpen(true)}
-            className="ui-btn"
-          >
-            About Developer
-          </button>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+              className="ui-btn"
+            >
+              {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsDeveloperInfoOpen(true)}
+              className="ui-btn"
+            >
+              About Developer
+            </button>
+          </div>
         </div>
       </header>
 

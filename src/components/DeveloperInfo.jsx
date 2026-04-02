@@ -68,7 +68,7 @@ export default function DeveloperInfo({ open, onClose }) {
             {INTERESTS.map((interest) => (
               <span
                 key={interest}
-                className="rounded-md border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                className="ui-surface px-2.5 py-1 text-xs"
               >
                 {interest}
               </span>

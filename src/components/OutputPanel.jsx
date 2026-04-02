@@ -14,7 +14,7 @@ const OutputPanel = memo(function OutputPanel({
   return (
     <section className="ui-surface flex h-full flex-col gap-2 p-4">
       <header className="flex items-center justify-between gap-2">
-        <h3 className="text-xs uppercase tracking-[0.2em] text-slate-600">{title}</h3>
+        <h3 className="ui-label">{title}</h3>
         <button
           type="button"
           onClick={onCopy}
@@ -24,7 +24,7 @@ const OutputPanel = memo(function OutputPanel({
           Copy
         </button>
       </header>
-      {meta ? <p className="ui-muted text-xs">{meta}</p> : null}
+      {meta ? <p className="ui-muted text-xs font-medium">{meta}</p> : null}
       <div className="code-surface min-h-[280px] flex-1 overflow-auto p-3 font-mono text-sm leading-relaxed">
         {children || (output ? <CodeBlock text={output} /> : 'Output appears here')}
       </div>

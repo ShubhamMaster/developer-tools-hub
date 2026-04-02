@@ -9,7 +9,7 @@ export default {
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       colors: {
-        panel: '#ffffff',
+        panel: '#ff1313',
         panelSoft: '#f3f7fb',
         accent: '#0f766e',
         accentSoft: '#ccfbf1',
