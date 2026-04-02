@@ -191,17 +191,6 @@ function AppLayout({
               visibleToolsCount={visibleTools.length}
             />
           }
-          rightPanel={
-            <aside className="ui-card p-4" aria-label="Tool information">
-              <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Info</h2>
-              <p className="ui-muted mt-2 text-sm">Offline-first. No sign-in. No tracking.</p>
-              <div className="mt-4 flex flex-wrap gap-2 text-xs" aria-label="Badges">
-                <span className="ui-surface px-2.5 py-1">Fast</span>
-                <span className="ui-surface px-2.5 py-1">Offline-ready</span>
-                <span className="ui-surface px-2.5 py-1">Lightweight</span>
-              </div>
-            </aside>
-          }
         >
           <Routes>
             <Route index element={<HomePage tools={visibleTools} sectionsById={sectionsById} />} />
@@ -218,7 +207,7 @@ function AppLayout({
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
 
-          <nav className="ui-card p-2 lg:hidden" aria-label="Tool tabs">
+          <nav className="ui-card p-2 xl:hidden" aria-label="Tool tabs">
             <div className="flex gap-2 overflow-x-auto pb-1">
               {visibleTools.map((tool) => (
                 <NavLink
