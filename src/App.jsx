@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 
 const JsonFormatterTool = lazy(() => import('./tools/json-formatter/JsonFormatterTool.jsx'));
 const Base64Tool = lazy(() => import('./tools/base64/Base64Tool.jsx'));
@@ -46,18 +46,42 @@ const TOOL_REGISTRY = {
 
 export default function App() {
   const [activeTool, setActiveTool] = useState('json');
+  const [theme, setTheme] = useState('light');
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem('dth-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    setTheme(initialTheme);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    window.localStorage.setItem('dth-theme', theme);
+  }, [theme]);
 
   const activeConfig = useMemo(() => TOOL_REGISTRY[activeTool], [activeTool]);
   const ActiveToolComponent = activeConfig.component;
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 px-3 py-5 sm:px-6 lg:px-8">
-      <header className="overflow-hidden rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-lg shadow-cyan-100/60 backdrop-blur-sm sm:p-7">
-        <p className="text-xs uppercase tracking-[0.28em] text-teal-700">Developer Tools Hub</p>
-        <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:text-4xl">Light, fast, developer-first toolbox.</h1>
-        <p className="mt-2 max-w-3xl text-sm text-slate-600 sm:text-base">
-          Responsive utility workspace built for instant feedback, low overhead, and modular scalability.
-        </p>
+      <header className="ui-card overflow-hidden p-5 backdrop-blur-sm sm:p-7">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] text-teal-700 dark:text-cyan-300">Developer Tools Hub</p>
+            <h1 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-4xl">Light, fast, developer-first toolbox.</h1>
+            <p className="ui-muted mt-2 max-w-3xl text-sm sm:text-base">
+              Responsive utility workspace built for instant feedback, low overhead, and modular scalability.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+            className="ui-btn"
+          >
+            {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+          </button>
+        </div>
       </header>
 
       <nav className="flex gap-2 overflow-x-auto pb-1">
@@ -68,11 +92,7 @@ export default function App() {
               type="button"
               key={key}
               onClick={() => setActiveTool(key)}
-              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm transition ${
-                isActive
-                  ? 'border-teal-700 bg-teal-100 text-teal-900'
-                  : 'border-slate-300 bg-white/90 text-slate-700 hover:border-teal-400 hover:text-teal-700'
-              }`}
+              className={`ui-tab ${isActive ? 'ui-tab-active' : ''}`}
             >
               {config.label}
             </button>
@@ -82,7 +102,7 @@ export default function App() {
 
       <Suspense
         fallback={
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">
+          <div className="ui-card p-8 text-center ui-muted">
             Loading tool module...
           </div>
         }

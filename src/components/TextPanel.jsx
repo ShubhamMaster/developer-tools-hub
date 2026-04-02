@@ -9,7 +9,7 @@ const TextPanel = memo(function TextPanel({
 }) {
   return (
     <label className={`flex h-full flex-col gap-2 ${className}`.trim()}>
-      <span className="text-xs uppercase tracking-[0.2em] text-slate-600">{label}</span>
+      <span className="ui-label">{label}</span>
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}

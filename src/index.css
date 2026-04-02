@@ -6,12 +6,25 @@
   color-scheme: light;
 }
 
+:root.dark {
+  color-scheme: dark;
+}
+
 body {
-  @apply m-0 min-h-screen bg-slate-50 text-slate-900 font-sans;
+  @apply m-0 min-h-screen font-sans;
   background-image:
     radial-gradient(circle at 5% 0%, rgba(20, 184, 166, 0.28), transparent 32%),
     radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.2), transparent 35%),
     linear-gradient(160deg, #f8fafc 0%, #ecfeff 100%);
+  color: #0f172a;
+}
+
+.dark body {
+  background-image:
+    radial-gradient(circle at 5% 0%, rgba(45, 212, 191, 0.2), transparent 34%),
+    radial-gradient(circle at 100% 100%, rgba(14, 116, 144, 0.28), transparent 40%),
+    linear-gradient(160deg, #020617 0%, #0f172a 100%);
+  color: #e2e8f0;
 }
 
 * {
@@ -32,7 +45,40 @@ pre {
 
 @layer components {
   .field-input {
-    @apply rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition;
-    @apply focus:border-teal-600 focus:ring-2 focus:ring-teal-200;
+    @apply rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition;
+    @apply focus:border-teal-600 focus:ring-2 focus:ring-teal-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-cyan-400 dark:focus:ring-cyan-900;
+  }
+
+  .ui-card {
+    @apply rounded-lg border border-slate-200 bg-white/95 shadow-md shadow-slate-200/70;
+    @apply dark:border-slate-800 dark:bg-slate-900/90 dark:shadow-slate-950/50;
+  }
+
+  .ui-muted {
+    @apply text-slate-600 dark:text-slate-300;
+  }
+
+  .ui-label {
+    @apply text-xs uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400;
+  }
+
+  .ui-btn {
+    @apply rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 transition;
+    @apply hover:border-teal-500 hover:text-teal-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-cyan-400 dark:hover:text-cyan-300;
+  }
+
+  .ui-btn-primary {
+    @apply rounded-md border border-teal-500 bg-teal-50 px-3 py-2 text-sm text-teal-800 transition;
+    @apply hover:bg-teal-100 dark:border-cyan-500 dark:bg-cyan-950/50 dark:text-cyan-200 dark:hover:bg-cyan-900/60;
+  }
+
+  .ui-tab {
+    @apply whitespace-nowrap rounded-md border border-slate-300 bg-white/90 px-4 py-2 text-sm text-slate-700 transition;
+    @apply hover:border-teal-400 hover:text-teal-700 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:border-cyan-400 dark:hover:text-cyan-300;
+  }
+
+  .ui-tab-active {
+    @apply border-teal-700 bg-teal-100 text-teal-900;
+    @apply dark:border-cyan-400 dark:bg-cyan-950/70 dark:text-cyan-200;
   }
 }
