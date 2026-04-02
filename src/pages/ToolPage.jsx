@@ -6,6 +6,14 @@ function titleFor(tool) {
   return tool ? `Developer Tools Hub — ${tool.label}` : 'Developer Tools Hub';
 }
 
+function getCanonicalHref() {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  return window.location.href;
+}
+
 export default function ToolPage({
   toolsBySlug,
   sectionsById,
@@ -29,6 +37,10 @@ export default function ToolPage({
       <Helmet>
         <title>{titleFor(tool)}</title>
         <meta name="description" content={tool.description || `${tool.label} tool`} />
+        {getCanonicalHref() ? <link rel="canonical" href={getCanonicalHref()} /> : null}
+        <meta property="og:title" content={titleFor(tool)} />
+        <meta property="og:description" content={tool.description || `${tool.label} tool`} />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <nav aria-label="Breadcrumb" className="ui-card px-3 py-2">
