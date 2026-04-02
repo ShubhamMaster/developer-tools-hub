@@ -8,7 +8,7 @@ export default function ToolShell({ title, description, controls, input, output 
         </div>
         {controls ? <div className="flex flex-wrap gap-2">{controls}</div> : null}
       </header>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <div className="min-h-[340px]">{input}</div>
         <div className="min-h-[340px]">{output}</div>
       </div>

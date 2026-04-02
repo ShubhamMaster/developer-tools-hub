@@ -1,6 +1,7 @@
 [
   {
     "id": "json",
+    "slug": "json",
     "label": "JSON Formatter",
     "section": "format",
     "description": "Format, minify, and validate JSON.",
@@ -8,6 +9,7 @@
   },
   {
     "id": "base64",
+    "slug": "base64",
     "label": "Base64",
     "section": "format",
     "description": "Encode or decode Base64.",
@@ -15,6 +17,7 @@
   },
   {
     "id": "urlcodec",
+    "slug": "url",
     "label": "URL Encode/Decode",
     "section": "format",
     "description": "Encode or decode URL components.",
@@ -22,6 +25,7 @@
   },
   {
     "id": "jwt",
+    "slug": "jwt-decoder",
     "label": "JWT Decoder",
     "section": "inspect",
     "description": "Decode JWT header and payload locally.",
@@ -29,6 +33,7 @@
   },
   {
     "id": "url",
+    "slug": "url-inspector",
     "label": "URL Inspector",
     "section": "inspect",
     "description": "Inspect URL parts and parameters.",
@@ -36,6 +41,7 @@
   },
   {
     "id": "api",
+    "slug": "api-tester",
     "label": "API Tester",
     "section": "api",
     "description": "Send HTTP requests and view responses.",
@@ -43,6 +49,7 @@
   },
   {
     "id": "regex",
+    "slug": "regex-tester",
     "label": "Regex Tester",
     "section": "api",
     "description": "Test regex patterns quickly.",
@@ -50,6 +57,7 @@
   },
   {
     "id": "uuid",
+    "slug": "uuid",
     "label": "UUID Generator",
     "section": "generators",
     "description": "Generate UUIDs with safe fallbacks.",
@@ -57,6 +65,7 @@
   },
   {
     "id": "time",
+    "slug": "timestamp",
     "label": "Timestamp",
     "section": "converters",
     "description": "Convert timestamps and dates.",
@@ -64,6 +73,7 @@
   },
   {
     "id": "case",
+    "slug": "case-converter",
     "label": "Case Converter",
     "section": "converters",
     "description": "Convert text into common casing styles.",
@@ -71,6 +81,7 @@
   },
   {
     "id": "numberbase",
+    "slug": "number-base",
     "label": "Number Base",
     "section": "converters",
     "description": "Convert numbers between bases.",

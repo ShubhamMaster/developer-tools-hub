@@ -25,7 +25,7 @@ const OutputPanel = memo(function OutputPanel({
         </button>
       </header>
       {meta ? <p className="ui-muted text-xs font-medium">{meta}</p> : null}
-      <div className="code-surface min-h-[280px] flex-1 overflow-auto p-3 font-mono text-sm leading-relaxed">
+      <div className="code-surface min-h-[280px] min-w-0 flex-1 overflow-x-auto overflow-y-auto p-3 font-mono text-sm leading-relaxed">
         {children || (output ? <CodeBlock text={output} /> : 'Output appears here')}
       </div>
     </section>

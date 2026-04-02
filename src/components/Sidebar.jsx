@@ -1,23 +1,26 @@
 import ToolCard from './ToolCard.jsx';
 
 export default function Sidebar({
+  variant = 'desktop',
   collapsed,
   sections,
   toolsBySection,
-  activeToolId,
-  onSelectTool,
   totalTools,
   visibleToolsCount,
 }) {
-  // Desktop-only sidebar (mobile uses lightweight tabs).
-  // When collapsed, hide the sidebar entirely.
-  if (collapsed) {
+  const isDrawer = variant === 'drawer';
+
+  // Desktop-only sidebar hides when collapsed.
+  if (!isDrawer && collapsed) {
     return null;
   }
 
   return (
-    <aside className="hidden lg:block lg:sticky lg:top-24" aria-label="Tool sidebar">
-      <div className="ui-card flex max-h-[calc(100vh-6.5rem)] flex-col overflow-hidden">
+    <aside
+      className={isDrawer ? 'h-full' : 'hidden lg:block lg:sticky lg:top-24'}
+      aria-label="Tool sidebar"
+    >
+      <div className={isDrawer ? 'ui-card flex h-full flex-col overflow-hidden' : 'ui-card flex max-h-[calc(100vh-6.5rem)] flex-col overflow-hidden'}>
         <div className="border-b border-slate-200 p-4 dark:border-slate-800">
           <p className="ui-label">Categories</p>
           <p className="ui-muted mt-1 text-xs">
@@ -43,10 +46,10 @@ export default function Sidebar({
                     {tools.map((tool) => (
                       <ToolCard
                         key={tool.id}
+                        to={`/tool/${tool.slug}`}
                         label={tool.label}
                         description={tool.description}
-                        active={tool.id === activeToolId}
-                        onSelect={() => onSelectTool(tool.id)}
+                        onSelect={undefined}
                       />
                     ))}
                   </div>

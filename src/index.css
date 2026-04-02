@@ -161,7 +161,7 @@ pre {
   }
 
   .code-editor-preview {
-    @apply m-0 h-full min-h-[280px] w-full overflow-auto whitespace-pre-wrap break-words p-4 font-mono text-sm leading-relaxed;
+    @apply m-0 h-full min-h-[280px] w-full overflow-x-auto overflow-y-auto whitespace-pre-wrap break-words p-4 font-mono text-sm leading-relaxed;
     @apply bg-white text-slate-900 dark:bg-[#0b1220] dark:text-slate-100;
     pointer-events: none;
   }

@@ -6,6 +6,7 @@ export default function Header({
   onSearchChange,
   onToggleSidebar,
   isSidebarCollapsed,
+  onOpenMobileSidebar,
 }) {
   return (
     <header
@@ -15,6 +16,14 @@ export default function Header({
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-3 py-3 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={onOpenMobileSidebar}
+              className="ui-btn px-3 py-2 lg:hidden"
+              aria-label="Open tool navigation"
+            >
+              Tools
+            </button>
             <button
               type="button"
               onClick={onToggleSidebar}
