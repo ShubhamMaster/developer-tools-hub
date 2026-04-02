@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import DeveloperInfo from './components/DeveloperInfo.jsx';
 
 const JsonFormatterTool = lazy(() => import('./tools/json-formatter/JsonFormatterTool.jsx'));
@@ -60,8 +60,37 @@ const TOOL_REGISTRY = {
   },
 };
 
+const TOOL_SECTIONS = [
+  {
+    id: 'format',
+    label: 'Format / Encode',
+    toolKeys: ['json', 'base64', 'urlcodec'],
+  },
+  {
+    id: 'inspect',
+    label: 'Inspect / Decode',
+    toolKeys: ['jwt', 'url'],
+  },
+  {
+    id: 'test',
+    label: 'Test',
+    toolKeys: ['regex', 'api'],
+  },
+  {
+    id: 'convert',
+    label: 'Converters',
+    toolKeys: ['time', 'case', 'numberbase'],
+  },
+  {
+    id: 'generate',
+    label: 'Generators',
+    toolKeys: ['uuid'],
+  },
+];
+
 export default function App() {
   const [activeTool, setActiveTool] = useState('json');
+  const [openSection, setOpenSection] = useState(null);
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') {
       return 'light';
@@ -75,6 +104,7 @@ export default function App() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
   const [isDeveloperInfoOpen, setIsDeveloperInfoOpen] = useState(false);
+  const navRef = useRef(null);
 
   useEffect(() => {
     const isDark = theme === 'dark';
@@ -84,9 +114,36 @@ export default function App() {
     window.localStorage.setItem('dth-theme', theme);
   }, [theme]);
 
+  useEffect(() => {
+    if (!openSection) {
+      return;
+    }
+
+    const handlePointerDown = (event) => {
+      if (!navRef.current) {
+        return;
+      }
+
+      if (!navRef.current.contains(event.target)) {
+        setOpenSection(null);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [openSection]);
+
   const activeConfig = useMemo(() => TOOL_REGISTRY[activeTool], [activeTool]);
   const ActiveToolComponent = activeConfig.component;
   const totalTools = useMemo(() => Object.keys(TOOL_REGISTRY).length, []);
+
+  const handleSelectTool = (toolKey) => {
+    setActiveTool(toolKey);
+    setOpenSection(null);
+    window.requestAnimationFrame(() => {
+      document.getElementById('tool-workspace')?.focus();
+    });
+  };
 
   return (
     <main className={`mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 px-3 py-5 sm:px-6 lg:px-8 ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`}>
@@ -120,20 +177,67 @@ export default function App() {
           </div>
         </div>
 
-        <nav className="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Tool navigation">
-          {Object.entries(TOOL_REGISTRY).map(([key, config]) => {
-            const isActive = key === activeTool;
+        <nav ref={navRef} className="mt-3 flex flex-wrap gap-2" aria-label="Tool navigation">
+          {TOOL_SECTIONS.map((section) => {
+            const sectionHasActive = section.toolKeys.includes(activeTool);
+            const isOpen = openSection === section.id;
+
             return (
-              <button
-                type="button"
-                key={key}
-                onClick={() => setActiveTool(key)}
-                className={`ui-tab ${isActive ? 'ui-tab-active' : ''}`}
-                aria-current={isActive ? 'page' : undefined}
-                aria-pressed={isActive}
+              <details
+                key={section.id}
+                open={isOpen}
+                onToggle={(event) => {
+                  const nextOpen = event.currentTarget.open;
+                  setOpenSection(nextOpen ? section.id : null);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    setOpenSection(null);
+                  }
+                }}
+                className="relative"
               >
-                {config.label}
-              </button>
+                <summary
+                  className={`ui-tab list-none cursor-pointer select-none [&::-webkit-details-marker]:hidden ${sectionHasActive ? 'ui-tab-active' : ''}`}
+                  aria-haspopup="menu"
+                  aria-expanded={isOpen}
+                >
+                  <span className="flex items-center gap-2">
+                    <span>{section.label}</span>
+                    <span className="ui-surface px-2 py-0.5 text-[0.7rem] ui-muted">{section.toolKeys.length}</span>
+                  </span>
+                </summary>
+
+                <div
+                  className="ui-card absolute left-0 z-50 mt-2 w-64 p-2"
+                  role="menu"
+                  aria-label={`${section.label} tools`}
+                >
+                  <div className="flex flex-col gap-1">
+                    {section.toolKeys.map((toolKey) => {
+                      const toolConfig = TOOL_REGISTRY[toolKey];
+                      if (!toolConfig) {
+                        return null;
+                      }
+
+                      const isActive = toolKey === activeTool;
+                      return (
+                        <button
+                          key={toolKey}
+                          type="button"
+                          role="menuitem"
+                          onClick={() => handleSelectTool(toolKey)}
+                          className={`ui-btn flex w-full items-center justify-between gap-2 ${isActive ? 'ui-tab-active' : ''}`}
+                          aria-current={isActive ? 'page' : undefined}
+                        >
+                          <span className="text-left">{toolConfig.label}</span>
+                          {isActive ? <span className="ui-muted text-xs">Active</span> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </details>
             );
           })}
         </nav>
@@ -160,7 +264,7 @@ export default function App() {
           </div>
         }
       >
-        <section id="tool-workspace" aria-label={`${activeConfig.label} workspace`}>
+        <section id="tool-workspace" tabIndex={-1} aria-label={`${activeConfig.label} workspace`}>
           <ActiveToolComponent />
         </section>
       </Suspense>
