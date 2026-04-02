@@ -19,7 +19,7 @@ export default function Header({
             <button
               type="button"
               onClick={onOpenMobileSidebar}
-              className="ui-btn px-3 py-2 lg:hidden"
+              className="ui-btn px-3 py-2 xl:hidden"
               aria-label="Open tool navigation"
             >
               Tools
@@ -27,7 +27,7 @@ export default function Header({
             <button
               type="button"
               onClick={onToggleSidebar}
-              className="ui-btn hidden px-3 py-2 lg:inline-flex"
+              className="ui-btn hidden px-3 py-2 xl:inline-flex"
               aria-label={isSidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}
             >
               {isSidebarCollapsed ? 'Show tools' : 'Hide tools'}

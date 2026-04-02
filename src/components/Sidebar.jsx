@@ -17,7 +17,7 @@ export default function Sidebar({
 
   return (
     <aside
-      className={isDrawer ? 'h-full' : 'hidden lg:block lg:sticky lg:top-24'}
+      className={isDrawer ? 'h-full' : 'xl:sticky xl:top-24'}
       aria-label="Tool sidebar"
     >
       <div className={isDrawer ? 'ui-card flex h-full flex-col overflow-hidden' : 'ui-card flex max-h-[calc(100vh-6.5rem)] flex-col overflow-hidden'}>
