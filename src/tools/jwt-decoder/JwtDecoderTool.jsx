@@ -36,15 +36,15 @@ export default function JwtDecoderTool() {
       output={
         <OutputPanel title="Decoded" output={combinedOutput} onCopy={copyOutput} copyDisabled={!combinedOutput}>
           {error ? (
-            <span className="text-red-300">{error}</span>
+            <span className="text-red-700">{error}</span>
           ) : (
             <div className="space-y-3">
               <div>
-                <p className="mb-1 text-xs uppercase tracking-[0.2em] text-slate-400">Header</p>
+                <p className="mb-1 text-xs uppercase tracking-[0.2em] text-slate-600">Header</p>
                 <pre>{header || 'Header appears here'}</pre>
               </div>
               <div>
-                <p className="mb-1 text-xs uppercase tracking-[0.2em] text-slate-400">Payload</p>
+                <p className="mb-1 text-xs uppercase tracking-[0.2em] text-slate-600">Payload</p>
                 <pre>{payload || 'Payload appears here'}</pre>
               </div>
             </div>

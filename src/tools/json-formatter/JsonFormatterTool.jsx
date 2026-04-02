@@ -53,7 +53,7 @@ export default function JsonFormatterTool() {
       <select
         value={mode}
         onChange={(event) => setMode(event.target.value)}
-        className="rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-200"
+        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
       >
         <option value="format">Format</option>
         <option value="minify">Minify</option>
@@ -62,7 +62,7 @@ export default function JsonFormatterTool() {
       <button
         type="button"
         onClick={() => setInput('')}
-        className="rounded-md border border-slate-600 px-3 py-2 text-sm text-slate-200 hover:border-slate-400"
+        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:border-teal-500 hover:text-teal-700"
       >
         Clear
       </button>
@@ -84,7 +84,7 @@ export default function JsonFormatterTool() {
       }
       output={
         <OutputPanel title="Output" output={output} onCopy={copyOutput} meta={meta} copyDisabled={!output}>
-          {error ? <span className="text-red-300">{error}</span> : output || 'Output appears here'}
+          {error ? <span className="text-red-700">{error}</span> : output || 'Output appears here'}
         </OutputPanel>
       }
     />

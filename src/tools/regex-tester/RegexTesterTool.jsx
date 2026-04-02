@@ -26,7 +26,7 @@ function buildPreview(text, matches, maxChars = 12000) {
     if (start < cursor) continue;
 
     html += escapeHtml(clipped.slice(cursor, start));
-    html += `<mark class="rounded bg-emerald-700/70 px-0.5 text-emerald-100">${escapeHtml(clipped.slice(start, end))}</mark>`;
+    html += `<mark class="rounded bg-teal-200 px-0.5 text-teal-900">${escapeHtml(clipped.slice(start, end))}</mark>`;
     cursor = end;
   }
 
@@ -87,23 +87,23 @@ export default function RegexTesterTool() {
             value={pattern}
             onChange={(event) => setPattern(event.target.value)}
             placeholder="Pattern"
-            className="w-56 rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+            className="w-56 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
           />
           <input
             value={flags}
             onChange={(event) => setFlags(event.target.value)}
             placeholder="Flags"
-            className="w-24 rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+            className="w-24 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
           />
         </div>
       }
       input={
         <label className="flex h-full flex-col gap-2">
-          <span className="text-xs uppercase tracking-[0.2em] text-slate-400">Input Text</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-slate-600">Input Text</span>
           <textarea
             value={text}
             onChange={(event) => setText(event.target.value)}
-            className="h-full min-h-[280px] w-full resize-none rounded-xl border border-slate-700 bg-panel px-4 py-3 font-mono text-sm outline-none focus:border-accent"
+            className="h-full min-h-[280px] w-full resize-none field-input font-mono"
             spellCheck={false}
           />
         </label>
@@ -117,7 +117,7 @@ export default function RegexTesterTool() {
           meta={error ? `Error: ${error}` : `${matches.length} match(es)`}
         >
           {error ? (
-            <span className="text-red-300">{error}</span>
+            <span className="text-red-700">{error}</span>
           ) : (
             <pre dangerouslySetInnerHTML={{ __html: preview }} />
           )}

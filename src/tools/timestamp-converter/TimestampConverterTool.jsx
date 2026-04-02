@@ -1,0 +1,79 @@
+import { useMemo, useState } from 'react';
+import OutputPanel from '../../components/OutputPanel.jsx';
+import ToolShell from '../../components/ToolShell.jsx';
+
+function parseTimestamp(value) {
+  const raw = value.trim();
+  if (!raw) {
+    return { iso: '', local: '', utc: '', unixMs: '', unixSec: '' };
+  }
+
+  const asNumber = Number(raw);
+  const date = Number.isFinite(asNumber)
+    ? new Date(raw.length <= 10 ? asNumber * 1000 : asNumber)
+    : new Date(raw);
+
+  if (Number.isNaN(date.getTime())) {
+    throw new Error('Invalid timestamp or date input.');
+  }
+
+  return {
+    iso: date.toISOString(),
+    local: date.toString(),
+    utc: date.toUTCString(),
+    unixMs: String(date.getTime()),
+    unixSec: String(Math.floor(date.getTime() / 1000)),
+  };
+}
+
+export default function TimestampConverterTool() {
+  const [input, setInput] = useState(String(Date.now()));
+
+  const { output, error } = useMemo(() => {
+    try {
+      const parsed = parseTimestamp(input);
+      return { output: JSON.stringify(parsed, null, 2), error: '' };
+    } catch (e) {
+      return { output: '', error: e.message };
+    }
+  }, [input]);
+
+  const useNow = () => setInput(String(Date.now()));
+
+  const copyOutput = async () => {
+    if (!output) return;
+    await navigator.clipboard.writeText(output);
+  };
+
+  return (
+    <ToolShell
+      title="Timestamp Converter"
+      description="Convert between Unix timestamps and human-readable dates."
+      controls={
+        <button
+          type="button"
+          onClick={useNow}
+          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:border-teal-500 hover:text-teal-700"
+        >
+          Use Current Time
+        </button>
+      }
+      input={
+        <label className="flex h-full flex-col gap-2">
+          <span className="text-xs uppercase tracking-[0.2em] text-slate-600">Timestamp or Date</span>
+          <input
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            className="field-input"
+            placeholder="e.g. 1711619552000 or 2026-04-02T10:00:00Z"
+          />
+        </label>
+      }
+      output={
+        <OutputPanel title="Converted" output={output} onCopy={copyOutput} copyDisabled={!output}>
+          {error ? <span className="text-red-700">{error}</span> : output || 'Converted result appears here'}
+        </OutputPanel>
+      }
+    />
+  );
+}

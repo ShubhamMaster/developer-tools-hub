@@ -32,7 +32,7 @@ export default function Base64Tool() {
         <select
           value={mode}
           onChange={(event) => setMode(event.target.value)}
-          className="rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-sm text-slate-200"
+          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
         >
           <option value="encode">Encode</option>
           <option value="decode">Decode</option>
@@ -41,7 +41,7 @@ export default function Base64Tool() {
       input={<TextPanel label="Input" value={input} onChange={setInput} placeholder="Type plain text or Base64" />}
       output={
         <OutputPanel title="Output" output={output} onCopy={copyOutput} copyDisabled={!output}>
-          {error ? <span className="text-red-300">{error}</span> : output || 'Output appears here'}
+          {error ? <span className="text-red-700">{error}</span> : output || 'Output appears here'}
         </OutputPanel>
       }
     />
