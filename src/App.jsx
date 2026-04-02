@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import DeveloperInfo from './components/DeveloperInfo.jsx';
 
 const JsonFormatterTool = lazy(() => import('./tools/json-formatter/JsonFormatterTool.jsx'));
 const Base64Tool = lazy(() => import('./tools/base64/Base64Tool.jsx'));
@@ -47,6 +48,7 @@ const TOOL_REGISTRY = {
 export default function App() {
   const [activeTool, setActiveTool] = useState('json');
   const [theme, setTheme] = useState('light');
+  const [isDeveloperInfoOpen, setIsDeveloperInfoOpen] = useState(false);
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem('dth-theme');
@@ -81,6 +83,13 @@ export default function App() {
           >
             {theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
           </button>
+          <button
+            type="button"
+            onClick={() => setIsDeveloperInfoOpen(true)}
+            className="ui-btn"
+          >
+            About Developer
+          </button>
         </div>
       </header>
 
@@ -109,6 +118,14 @@ export default function App() {
       >
         <ActiveToolComponent />
       </Suspense>
+
+      <footer className="pb-2 text-right text-xs ui-muted">
+        <button type="button" className="ui-btn" onClick={() => setIsDeveloperInfoOpen(true)}>
+          Creator
+        </button>
+      </footer>
+
+      <DeveloperInfo open={isDeveloperInfoOpen} onClose={() => setIsDeveloperInfoOpen(false)} />
     </main>
   );
 }
