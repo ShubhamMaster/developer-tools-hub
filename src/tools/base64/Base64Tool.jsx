@@ -32,7 +32,7 @@ export default function Base64Tool() {
         <select
           value={mode}
           onChange={(event) => setMode(event.target.value)}
-          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+          className="ui-select"
         >
           <option value="encode">Encode</option>
           <option value="decode">Decode</option>

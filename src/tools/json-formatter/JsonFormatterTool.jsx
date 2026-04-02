@@ -53,7 +53,7 @@ export default function JsonFormatterTool() {
       <select
         value={mode}
         onChange={(event) => setMode(event.target.value)}
-        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+        className="ui-select"
       >
         <option value="format">Format</option>
         <option value="minify">Minify</option>
@@ -62,7 +62,7 @@ export default function JsonFormatterTool() {
       <button
         type="button"
         onClick={() => setInput('')}
-        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:border-teal-500 hover:text-teal-700"
+        className="ui-btn"
       >
         Clear
       </button>

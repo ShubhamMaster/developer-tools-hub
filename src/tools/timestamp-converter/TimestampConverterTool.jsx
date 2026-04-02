@@ -53,14 +53,14 @@ export default function TimestampConverterTool() {
         <button
           type="button"
           onClick={useNow}
-          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:border-teal-500 hover:text-teal-700"
+          className="ui-btn"
         >
           Use Current Time
         </button>
       }
       input={
         <label className="flex h-full flex-col gap-2">
-          <span className="text-xs uppercase tracking-[0.2em] text-slate-600">Timestamp or Date</span>
+          <span className="ui-label">Timestamp or Date</span>
           <input
             value={input}
             onChange={(event) => setInput(event.target.value)}

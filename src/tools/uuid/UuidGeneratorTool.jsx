@@ -2,12 +2,39 @@ import { useMemo, useState } from 'react';
 import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 
+function createUuidV4Fallback() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+function createUuid() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  if (globalThis.crypto?.getRandomValues) {
+    return createUuidV4Fallback();
+  }
+
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (token) => {
+    const random = Math.floor(Math.random() * 16);
+    const value = token === 'x' ? random : (random & 0x3) | 0x8;
+    return value.toString(16);
+  });
+}
+
 function generateBatch(count) {
   const size = Math.max(1, Math.min(200, count));
   const rows = new Array(size);
 
   for (let i = 0; i < size; i += 1) {
-    rows[i] = crypto.randomUUID();
+    rows[i] = createUuid();
   }
 
   return rows;
@@ -38,19 +65,19 @@ export default function UuidGeneratorTool() {
             max="200"
             value={count}
             onChange={(event) => setCount(event.target.value)}
-            className="w-24 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+            className="ui-select w-24"
           />
           <button
             type="button"
             onClick={regenerate}
-            className="rounded-md border border-teal-500 bg-teal-50 px-3 py-2 text-sm text-teal-800 hover:bg-teal-100"
+            className="ui-btn-primary"
           >
             Generate
           </button>
         </>
       }
       input={
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+        <div className="ui-surface p-4 text-sm ui-muted">
           Produces deterministic-size UUID batches with no external dependency.
         </div>
       }

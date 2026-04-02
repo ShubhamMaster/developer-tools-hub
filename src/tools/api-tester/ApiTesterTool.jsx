@@ -70,7 +70,7 @@ export default function ApiTesterTool() {
           <select
             value={method}
             onChange={(event) => setMethod(event.target.value)}
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800"
+            className="ui-select"
           >
             {METHODS.map((entry) => (
               <option key={entry} value={entry}>
@@ -81,7 +81,7 @@ export default function ApiTesterTool() {
           <button
             type="button"
             onClick={runRequest}
-            className="rounded-md border border-teal-500 bg-teal-50 px-3 py-2 text-sm text-teal-800 hover:bg-teal-100"
+            className="ui-btn-primary"
           >
             Send
           </button>
@@ -92,7 +92,7 @@ export default function ApiTesterTool() {
           <input
             value={url}
             onChange={(event) => setUrl(event.target.value)}
-            className="field-input"
+            className="code-input"
           />
           <TextPanel label="Headers" value={headers} onChange={setHeaders} placeholder="Header: value" className="h-40" />
           {canHaveBody ? <TextPanel label="Body" value={body} onChange={setBody} placeholder="Request body" className="h-56" /> : null}
