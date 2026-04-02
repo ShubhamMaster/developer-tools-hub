@@ -16,20 +16,11 @@ body.dark {
 }
 
 body {
-  @apply m-0 min-h-screen font-sans;
-  background-image:
-    radial-gradient(circle at 5% 0%, rgba(20, 184, 166, 0.28), transparent 32%),
-    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.2), transparent 35%),
-    linear-gradient(160deg, #f8fafc 0%, #ecfeff 100%);
-  color: #0f172a;
+  @apply m-0 min-h-screen bg-white font-sans text-slate-900;
 }
 
 .dark body {
-  background-image:
-    radial-gradient(circle at 5% 0%, rgba(45, 212, 191, 0.2), transparent 34%),
-    radial-gradient(circle at 100% 100%, rgba(14, 116, 144, 0.28), transparent 40%),
-    linear-gradient(160deg, #020617 0%, #0f172a 100%);
-  color: #e2e8f0;
+  @apply bg-slate-950 text-slate-100;
 }
 
 html.dark body,
@@ -202,8 +193,8 @@ pre {
   }
 
   .ui-card {
-    @apply rounded-lg border border-slate-200 bg-white/95 shadow-md shadow-slate-200/70;
-    @apply dark:border-slate-800 dark:bg-slate-900/90 dark:shadow-slate-950/50;
+    @apply rounded-md border border-slate-200 bg-white;
+    @apply dark:border-slate-800 dark:bg-slate-950;
   }
 
   .ui-muted {
@@ -225,7 +216,7 @@ pre {
   }
 
   .ui-tab {
-    @apply whitespace-nowrap rounded-md border border-slate-300 bg-white/90 px-4 py-2 text-sm text-slate-700 transition;
+    @apply whitespace-nowrap rounded-md border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 transition;
     @apply hover:border-teal-400 hover:text-teal-700 dark:border-slate-700 dark:bg-[#0b1220] dark:text-slate-200 dark:hover:border-cyan-400 dark:hover:bg-slate-800 dark:hover:text-cyan-300;
   }
 

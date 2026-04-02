@@ -145,7 +145,7 @@ export default function App() {
               Code-ready tools, one clean workspace
             </h1>
             <p className="ui-muted mt-2 max-w-3xl text-sm sm:text-base">
-              Clean, scalable layout with instant search, lazy-loaded tools, and consistent code-first panels.
+              Minimal UI inspired by GitHub + Wikipedia: fast navigation, readable panels, and instant search.
             </p>
             <div className="mt-4 flex flex-wrap gap-2 text-xs" aria-label="Platform highlights">
               <span className="ui-surface px-2.5 py-1">{totalTools} tools available</span>
@@ -154,6 +154,25 @@ export default function App() {
               <span className="ui-surface px-2.5 py-1">Lightweight</span>
             </div>
           </section>
+
+          <nav className="ui-card p-2 lg:hidden" aria-label="Tool tabs">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {visibleTools.map((tool) => {
+                const isActive = tool.id === activeTool;
+                return (
+                  <button
+                    key={tool.id}
+                    type="button"
+                    onClick={() => handleSelectTool(tool.id)}
+                    className={`ui-tab ${isActive ? 'ui-tab-active' : ''}`}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {tool.label}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
 
           <Suspense
             fallback={

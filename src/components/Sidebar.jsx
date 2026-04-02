@@ -9,19 +9,14 @@ export default function Sidebar({
   totalTools,
   visibleToolsCount,
 }) {
+  // Desktop-only sidebar (mobile uses lightweight tabs).
+  // When collapsed, hide the sidebar entirely.
   if (collapsed) {
-    return (
-      <aside className="hidden lg:block" aria-label="Tool sidebar">
-        <div className="ui-card p-3">
-          <p className="ui-label">Tools</p>
-          <p className="ui-muted mt-2 text-xs">Sidebar collapsed</p>
-        </div>
-      </aside>
-    );
+    return null;
   }
 
   return (
-    <aside className="lg:sticky lg:top-24" aria-label="Tool sidebar">
+    <aside className="hidden lg:block lg:sticky lg:top-24" aria-label="Tool sidebar">
       <div className="ui-card flex max-h-[calc(100vh-6.5rem)] flex-col overflow-hidden">
         <div className="border-b border-slate-200 p-4 dark:border-slate-800">
           <p className="ui-label">Categories</p>
