@@ -168,6 +168,7 @@ function AppLayout({
               variant="drawer"
               collapsed={false}
               groupedTools={groupedTools}
+              searchResults={visibleTools}
               totalTools={totalTools}
               visibleToolsCount={visibleTools.length}
               searchQuery={searchQuery}
@@ -184,6 +185,7 @@ function AppLayout({
               variant="desktop"
               collapsed={isSidebarCollapsed}
               groupedTools={groupedTools}
+              searchResults={visibleTools}
               totalTools={totalTools}
               visibleToolsCount={visibleTools.length}
               searchQuery={searchQuery}

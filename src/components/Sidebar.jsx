@@ -12,6 +12,7 @@ export default function Sidebar({
   variant = 'desktop',
   collapsed,
   groupedTools,
+  searchResults = [],
   totalTools,
   visibleToolsCount,
   searchQuery,
@@ -38,6 +39,10 @@ export default function Sidebar({
   const [expandedGroups, setExpandedGroups] = useState(() => new Set(groupKeys));
   const favoriteSet = useMemo(() => new Set(favoriteSlugs), [favoriteSlugs]);
   const isSearchActive = Boolean(searchQuery && searchQuery.trim().length > 0);
+  const searchResultsSorted = useMemo(
+    () => [...searchResults].sort((a, b) => a.name.localeCompare(b.name)),
+    [searchResults],
+  );
 
   const listContainerRef = useRef(null);
   const [listSize, setListSize] = useState({ width: 0, height: 0 });
@@ -207,8 +212,8 @@ export default function Sidebar({
   };
 
   const toolRowsCount = useMemo(
-    () => rows.filter((row) => row.type === 'tool').length,
-    [rows],
+    () => (isSearchActive ? searchResultsSorted.length : rows.filter((row) => row.type === 'tool').length),
+    [isSearchActive, rows, searchResultsSorted.length],
   );
 
   return (
@@ -318,7 +323,20 @@ export default function Sidebar({
             </div>
           ) : null}
           <div ref={listContainerRef} className="min-h-0 flex-1">
-            {listSize.height > 0 && listSize.width > 0 ? (
+            {isSearchActive ? (
+              <div className="flex flex-col gap-1">
+                {searchResultsSorted.map((tool) => (
+                  <ToolCard
+                    key={tool.slug}
+                    to={`/tool/${tool.slug}`}
+                    label={tool.name}
+                    description={tool.description}
+                    isFavorite={favoriteSet.has(tool.slug)}
+                    onToggleFavorite={onToggleFavorite ? () => onToggleFavorite(tool.slug) : undefined}
+                  />
+                ))}
+              </div>
+            ) : listSize.height > 0 && listSize.width > 0 ? (
               <List
                 rowCount={rows.length}
                 rowHeight={ROW_HEIGHT}
