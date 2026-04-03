@@ -1,7 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ToolShell from '../../components/ToolShell.jsx';
 import { downloadTextFile } from '../../utils/download.js';
 import CodeBlock from '../../components/CodeBlock.jsx';
+import OverLimitNotice from '../../components/OverLimitNotice.jsx';
+
+const UUID_WARNING_LIMIT = 5000;
 
 function createUuidV4Fallback() {
   const bytes = new Uint8Array(16);
@@ -30,8 +33,16 @@ function createUuid() {
   });
 }
 
+function normalizeCount(count) {
+  const parsed = Number(count);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return 0;
+  }
+  return Math.floor(parsed);
+}
+
 function generateBatch(count) {
-  const size = Math.max(1, Math.min(200, count));
+  const size = normalizeCount(count);
   const rows = new Array(size);
 
   for (let i = 0; i < size; i += 1) {
@@ -44,10 +55,33 @@ function generateBatch(count) {
 export default function UuidGeneratorTool() {
   const [count, setCount] = useState(10);
   const [batch, setBatch] = useState(() => generateBatch(10));
+  const [allowLargeBatch, setAllowLargeBatch] = useState(false);
+
+  const normalizedCount = normalizeCount(count);
+  const overLimit = normalizedCount > UUID_WARNING_LIMIT;
+  const canGenerate = normalizedCount > 0 && (!overLimit || allowLargeBatch);
+
+  useEffect(() => {
+    if (!overLimit && allowLargeBatch) {
+      setAllowLargeBatch(false);
+    }
+  }, [allowLargeBatch, overLimit]);
 
   const output = useMemo(() => batch.join('\n'), [batch]);
 
-  const regenerate = () => setBatch(generateBatch(Number(count) || 1));
+  const regenerate = () => {
+    if (!canGenerate) {
+      return;
+    }
+    setBatch(generateBatch(count));
+  };
+
+  const forceGenerate = () => {
+    setAllowLargeBatch(true);
+    if (normalizedCount > 0) {
+      setBatch(generateBatch(count));
+    }
+  };
 
   const downloadTxt = () => {
     if (!output) {
@@ -69,8 +103,6 @@ export default function UuidGeneratorTool() {
         <>
           <input
             type="number"
-            min="1"
-            max="200"
             value={count}
             onChange={(event) => setCount(event.target.value)}
             className="ui-select w-24"
@@ -78,15 +110,25 @@ export default function UuidGeneratorTool() {
           <button
             type="button"
             onClick={regenerate}
-            className="ui-btn-primary"
+            disabled={!canGenerate}
+            className="ui-btn-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             Generate
           </button>
         </>
       }
       input={
-        <div className="ui-surface p-4 text-sm ui-muted">
-          Produces deterministic-size UUID batches with no external dependency.
+        <div className="flex h-full flex-col gap-3">
+          {overLimit && !allowLargeBatch ? (
+            <OverLimitNotice
+              message={`Large batch (${normalizedCount.toLocaleString()} UUIDs). This can slow down or crash your browser.`}
+              actionLabel="Generate anyway"
+              onAction={forceGenerate}
+            />
+          ) : null}
+          <div className="ui-surface p-4 text-sm ui-muted">
+            Produces deterministic-size UUID batches with no external dependency.
+          </div>
         </div>
       }
       outputMeta={`${batch.length} values`}

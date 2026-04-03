@@ -54,7 +54,7 @@ export default function Header({
             />
           </div>
 
-          <div className="flex shrink-0 flex-wrap gap-2" aria-label="Header actions">
+          <div className="flex shrink-0 flex-wrap items-center gap-2" aria-label="Header actions">
             <button
               type="button"
               onClick={onToggleTheme}

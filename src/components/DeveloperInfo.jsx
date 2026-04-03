@@ -47,10 +47,19 @@ export default function DeveloperInfo({ open, onClose }) {
         onClick={(event) => event.stopPropagation()}
       >
         <header className="mb-4 flex items-start justify-between gap-3">
-          <div>
-            <p className="ui-label">About Developer</p>
-            <h2 className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">Shubham Dighe</h2>
-            <p className="ui-muted text-sm">Full Stack Developer | System Builder</p>
+          <div className="flex items-start gap-4">
+            <img
+              src="https://shubham.civoranexus.com/images/shubham-dighe.jpeg"
+              alt="Shubham Dighe"
+              loading="lazy"
+              decoding="async"
+              className="h-14 w-14 rounded-full object-cover ring-1 ring-slate-200 dark:ring-slate-700"
+            />
+            <div>
+              <p className="ui-label">About Developer</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">Shubham Dighe</h2>
+              <p className="ui-muted text-sm">Full Stack Developer | System Builder</p>
+            </div>
           </div>
           <button type="button" className="ui-btn" onClick={onClose}>
             Close

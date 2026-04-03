@@ -14,6 +14,18 @@ const RECENTS_KEY = 'dth-recents';
 const FAVORITES_LIMIT = 24;
 const RECENTS_LIMIT = 12;
 
+function safeSetItem(key, value) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage errors (e.g., private mode or quota exceeded).
+  }
+}
+
 function loadList(key) {
   if (typeof window === 'undefined') {
     return [];
@@ -159,6 +171,13 @@ function AppLayout({
       />
 
       <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 px-3 py-5 sm:px-6 lg:px-8" role="main">
+        <div
+          className="ui-card border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-100 lg:hidden"
+          role="note"
+          aria-live="polite"
+        >
+          For the best experience, please use a desktop browser.
+        </div>
         <AppLayoutGrid
           sidebarCollapsed={isSidebarCollapsed}
           drawerOpen={isMobileSidebarOpen}
@@ -240,9 +259,13 @@ export default function App() {
       return 'light';
     }
 
-    const savedTheme = window.localStorage.getItem('dth-theme');
-    if (savedTheme === 'dark' || savedTheme === 'light') {
-      return savedTheme;
+    try {
+      const savedTheme = window.localStorage.getItem('dth-theme');
+      if (savedTheme === 'dark' || savedTheme === 'light') {
+        return savedTheme;
+      }
+    } catch {
+      // Ignore storage errors.
     }
 
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -256,15 +279,15 @@ export default function App() {
     document.documentElement.classList.toggle('dark', isDark);
     document.body.classList.toggle('dark', isDark);
     document.documentElement.setAttribute('data-theme', theme);
-    window.localStorage.setItem('dth-theme', theme);
+    safeSetItem('dth-theme', theme);
   }, [theme]);
 
   useEffect(() => {
-    window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    safeSetItem(FAVORITES_KEY, JSON.stringify(favorites));
   }, [favorites]);
 
   useEffect(() => {
-    window.localStorage.setItem(RECENTS_KEY, JSON.stringify(recents));
+    safeSetItem(RECENTS_KEY, JSON.stringify(recents));
   }, [recents]);
 
   const tools = useMemo(() => {

@@ -1,6 +1,7 @@
 import { Suspense, useMemo } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import ErrorBoundary from '../components/ErrorBoundary.jsx';
 
 function titleFor(tool) {
   return tool ? `Developer Tools Hub — ${tool.name}` : 'Developer Tools Hub';
@@ -57,17 +58,40 @@ export default function ToolPage({
         </ol>
       </nav>
 
-      <Suspense
-        fallback={
-          <div className="ui-card p-8 text-center ui-muted">
-            Loading tool module...
-          </div>
-        }
+      <ErrorBoundary
+        resetKey={tool.slug}
+        fallback={(error, reset) => (
+          <section className="ui-card p-6 text-sm" role="alert">
+            <p className="text-red-700 font-semibold">Tool failed to load.</p>
+            <p className="ui-muted mt-2">
+              Your browser ran into a problem rendering this tool.
+            </p>
+            {error?.message ? (
+              <p className="mt-2 text-xs text-red-600">{String(error.message)}</p>
+            ) : null}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button type="button" className="ui-btn" onClick={reset}>
+                Try again
+              </button>
+              <Link to="/" className="ui-btn">
+                Back home
+              </Link>
+            </div>
+          </section>
+        )}
       >
-        <section id="tool-workspace" tabIndex={-1} aria-label={`${tool.name} workspace`} className="outline-none">
-          <ToolComponent />
-        </section>
-      </Suspense>
+        <Suspense
+          fallback={
+            <div className="ui-card p-8 text-center ui-muted">
+              Loading tool module...
+            </div>
+          }
+        >
+          <section id="tool-workspace" tabIndex={-1} aria-label={`${tool.name} workspace`} className="outline-none">
+            <ToolComponent />
+          </section>
+        </Suspense>
+      </ErrorBoundary>
     </article>
   );
 }

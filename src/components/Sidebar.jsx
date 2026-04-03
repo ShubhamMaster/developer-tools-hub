@@ -74,6 +74,11 @@ export default function Sidebar({
 
     update();
 
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', update);
+      return () => window.removeEventListener('resize', update);
+    }
+
     const observer = new ResizeObserver(update);
     observer.observe(container);
     return () => observer.disconnect();
@@ -341,6 +346,7 @@ export default function Sidebar({
                 rowCount={rows.length}
                 rowHeight={ROW_HEIGHT}
                 rowComponent={renderRow}
+                rowProps={{}}
                 overscanCount={6}
                 style={{ height: listSize.height, width: listSize.width }}
               />

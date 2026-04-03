@@ -1,6 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ToolShell from '../../components/ToolShell.jsx';
 import CodeBlock from '../../components/CodeBlock.jsx';
+import OverLimitNotice from '../../components/OverLimitNotice.jsx';
+
+const PASSWORD_WARNING_LIMIT = 1024;
 
 const CHARSETS = {
   lower: 'abcdefghijklmnopqrstuvwxyz',
@@ -45,8 +48,20 @@ export default function PasswordGeneratorTool() {
   const [symbol, setSymbol] = useState(false);
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
+  const [allowLargeLength, setAllowLargeLength] = useState(false);
+
+  const parsedLength = Number(length);
+  const normalizedLength = Number.isFinite(parsedLength) ? Math.max(0, Math.floor(parsedLength)) : 0;
+  const overLimit = normalizedLength > PASSWORD_WARNING_LIMIT;
+  const canGenerate = normalizedLength > 0 && (!overLimit || allowLargeLength);
 
   const pool = buildPool({ lower, upper, number, symbol });
+
+  useEffect(() => {
+    if (!overLimit && allowLargeLength) {
+      setAllowLargeLength(false);
+    }
+  }, [allowLargeLength, overLimit]);
 
   const generate = () => {
     setError('');
@@ -57,7 +72,12 @@ export default function PasswordGeneratorTool() {
       return;
     }
 
-    const size = Math.max(6, Math.min(128, Number(length) || 16));
+    if (!canGenerate) {
+      setOutput('');
+      return;
+    }
+
+    const size = normalizedLength;
     const required = [];
 
     if (lower) required.push(CHARSETS.lower[randomInt(CHARSETS.lower.length)]);
@@ -65,13 +85,20 @@ export default function PasswordGeneratorTool() {
     if (number) required.push(CHARSETS.number[randomInt(CHARSETS.number.length)]);
     if (symbol) required.push(CHARSETS.symbol[randomInt(CHARSETS.symbol.length)]);
 
-    const remaining = Math.max(0, size - required.length);
-    const chars = [...required];
-    for (let i = 0; i < remaining; i += 1) {
-      chars.push(pool[randomInt(pool.length)]);
+    let chars = [];
+    if (size > 0) {
+      if (required.length > size) {
+        chars = shuffle([...required]).slice(0, size);
+      } else {
+        const remaining = size - required.length;
+        chars = [...required];
+        for (let i = 0; i < remaining; i += 1) {
+          chars.push(pool[randomInt(pool.length)]);
+        }
+      }
     }
 
-    setOutput(shuffle(chars).join(''));
+    setOutput(chars.length ? shuffle(chars).join('') : '');
   };
 
   const meta = useMemo(() => {
@@ -88,19 +115,29 @@ export default function PasswordGeneratorTool() {
         <>
           <input
             type="number"
-            min="6"
-            max="128"
             value={length}
             onChange={(event) => setLength(event.target.value)}
             className="ui-select w-24"
           />
-          <button type="button" onClick={generate} className="ui-btn-primary">
+          <button
+            type="button"
+            onClick={generate}
+            disabled={!canGenerate}
+            className="ui-btn-primary disabled:cursor-not-allowed disabled:opacity-40"
+          >
             Generate
           </button>
         </>
       }
       input={
         <div className="flex h-full flex-col gap-3">
+          {overLimit && !allowLargeLength ? (
+            <OverLimitNotice
+              message={`Large password length (${normalizedLength.toLocaleString()} chars). Generation may be slow or freeze your browser.`}
+              actionLabel="Generate anyway"
+              onAction={() => setAllowLargeLength(true)}
+            />
+          ) : null}
           <label className="inline-flex items-center gap-2 text-sm">
             <input type="checkbox" checked={lower} onChange={(event) => setLower(event.target.checked)} />
             Lowercase

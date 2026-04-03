@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import ToolShell from '../../components/ToolShell.jsx';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.js';
+import OverLimitNotice from '../../components/OverLimitNotice.jsx';
+
+const PREVIEW_WARNING_LIMIT = 12000;
 
 function escapeHtml(value) {
   return value
@@ -11,8 +14,8 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
-function buildPreview(text, matches, maxChars = 12000) {
-  const clipped = text.slice(0, maxChars);
+function buildPreview(text, matches) {
+  const clipped = text;
   if (!matches.length) return escapeHtml(clipped);
 
   let cursor = 0;
@@ -40,6 +43,10 @@ export default function RegexTesterTool() {
   const [matches, setMatches] = useState([]);
   const [error, setError] = useState('');
   const workerRef = useRef(null);
+  const [allowLargePreview, setAllowLargePreview] = useState(false);
+
+  const overLimit = text.length > PREVIEW_WARNING_LIMIT;
+  const previewText = overLimit && !allowLargePreview ? text.slice(0, PREVIEW_WARNING_LIMIT) : text;
 
   const debouncedText = useDebouncedValue(text, 180);
   const debouncedPattern = useDebouncedValue(pattern, 120);
@@ -71,7 +78,13 @@ export default function RegexTesterTool() {
     });
   }, [debouncedText, debouncedPattern, debouncedFlags]);
 
-  const preview = useMemo(() => buildPreview(text, matches), [text, matches]);
+  useEffect(() => {
+    if (!overLimit && allowLargePreview) {
+      setAllowLargePreview(false);
+    }
+  }, [allowLargePreview, overLimit]);
+
+  const preview = useMemo(() => buildPreview(previewText, matches), [matches, previewText]);
   const copyText = useMemo(() => matches.map((entry) => entry.value).join('\n'), [matches]);
 
   return (
@@ -95,15 +108,24 @@ export default function RegexTesterTool() {
         </div>
       }
       input={
-        <label className="flex h-full flex-col gap-2">
-          <span className="ui-label">Input Text</span>
-          <textarea
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            className="h-full min-h-[280px] w-full resize-none code-input"
-            spellCheck={false}
-          />
-        </label>
+        <div className="flex h-full flex-col gap-2">
+          {overLimit && !allowLargePreview ? (
+            <OverLimitNotice
+              message={`Large input (${text.length.toLocaleString()} chars). Rendering full highlights may be slow or freeze your browser.`}
+              actionLabel="Render full preview"
+              onAction={() => setAllowLargePreview(true)}
+            />
+          ) : null}
+          <label className="flex h-full flex-col gap-2">
+            <span className="ui-label">Input Text</span>
+            <textarea
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              className="h-full min-h-[280px] w-full resize-none code-input"
+              spellCheck={false}
+            />
+          </label>
+        </div>
       }
       outputMeta={error ? `Error: ${error}` : `${matches.length} match(es)`}
       output={
