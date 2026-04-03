@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import TextPanel from '../../components/TextPanel.jsx';
 import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
+import CodeBlock from '../../components/CodeBlock.jsx';
+import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 function parseQuery(searchParams) {
   const rows = [];
@@ -44,8 +46,8 @@ export default function UrlInspectorTool() {
   }, [input]);
 
   const copyOutput = async () => {
-    if (!output) return;
-    await navigator.clipboard.writeText(output);
+    if (!output) return false;
+    return copyTextToClipboard(output);
   };
 
   return (
@@ -55,7 +57,7 @@ export default function UrlInspectorTool() {
       input={<TextPanel label="URL" value={input} onChange={setInput} placeholder="Paste a full URL" />}
       output={
         <OutputPanel title="Parsed URL" output={output} onCopy={copyOutput} copyDisabled={!output} meta={meta}>
-          {error ? <span className="text-red-700">{error}</span> : output || 'Parsed URL appears here'}
+          {error ? <span className="text-red-700">{error}</span> : output ? <CodeBlock text={output} /> : 'Parsed URL appears here'}
         </OutputPanel>
       }
     />

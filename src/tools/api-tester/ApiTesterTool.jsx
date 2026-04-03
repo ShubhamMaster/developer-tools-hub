@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import TextPanel from '../../components/TextPanel.jsx';
 import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
+import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -57,8 +58,8 @@ export default function ApiTesterTool() {
   };
 
   const copyOutput = async () => {
-    if (!output) return;
-    await navigator.clipboard.writeText(output);
+    if (!output) return false;
+    return copyTextToClipboard(output);
   };
 
   return (

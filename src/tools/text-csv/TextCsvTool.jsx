@@ -3,6 +3,7 @@ import TextPanel from '../../components/TextPanel.jsx';
 import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import { downloadTextFile } from '../../utils/download.js';
+import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 function escapeCsvCell(value, delimiter) {
   const raw = String(value ?? '');
@@ -45,8 +46,8 @@ export default function TextCsvTool() {
   }, [delimiter, input, mode]);
 
   const copyOutput = async () => {
-    if (!output) return;
-    await navigator.clipboard.writeText(output);
+    if (!output) return false;
+    return copyTextToClipboard(output);
   };
 
   const downloadOutput = () => {

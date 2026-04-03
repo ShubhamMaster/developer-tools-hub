@@ -1,3 +1,11 @@
+import Prism from 'prismjs';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-typescript';
+
 const MAX_HIGHLIGHT_CHARS = 120000;
 
 export function escapeHtml(value) {
@@ -9,50 +17,42 @@ export function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
-function looksLikeJson(value) {
-  const trimmed = value.trim();
-  if (!(trimmed.startsWith('{') || trimmed.startsWith('['))) {
-    return false;
+function detectLanguage(value) {
+  const trimmed = value.trimStart();
+  if (!trimmed) {
+    return null;
   }
 
-  try {
-    JSON.parse(trimmed);
-    return true;
-  } catch {
-    return false;
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    return 'json';
   }
+
+  if (trimmed.startsWith('<')) {
+    return 'markup';
+  }
+
+  if (/^\s*(curl|git|npm|pnpm|yarn)\b/m.test(value)) {
+    return 'bash';
+  }
+
+  if (/^\s*(import|export|const|let|var|function|class)\b/m.test(value)) {
+    return 'javascript';
+  }
+
+  return null;
 }
 
-function highlightJson(value) {
-  const escaped = escapeHtml(value);
-  return escaped.replace(
-    /("(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\\"])*"\s*:|"(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\\"])*"|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?)/g,
-    (token) => {
-      if (token.endsWith(':')) {
-        return `<span class=\"tok-key\">${token}</span>`;
-      }
-      if (token[0] === '"') {
-        return `<span class=\"tok-string\">${token}</span>`;
-      }
-      if (token === 'true' || token === 'false') {
-        return `<span class=\"tok-boolean\">${token}</span>`;
-      }
-      if (token === 'null') {
-        return `<span class=\"tok-null\">${token}</span>`;
-      }
-      return `<span class=\"tok-number\">${token}</span>`;
-    },
-  );
-}
-
-export function highlightCode(value) {
+export function highlightCode(value, language) {
   if (!value) return '';
   if (value.length > MAX_HIGHLIGHT_CHARS) {
     return escapeHtml(value);
   }
 
-  if (looksLikeJson(value)) {
-    return highlightJson(value);
+  const selectedLanguage = (language || detectLanguage(value) || '').toLowerCase();
+  const grammar = selectedLanguage ? Prism.languages[selectedLanguage] : null;
+
+  if (grammar) {
+    return Prism.highlight(value, grammar, selectedLanguage);
   }
 
   return escapeHtml(value)

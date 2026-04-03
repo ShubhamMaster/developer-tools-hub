@@ -1,5 +1,6 @@
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import CodeBlock from './CodeBlock.jsx';
+import { copyTextToClipboard } from '../utils/clipboard.js';
 
 const OutputPanel = memo(function OutputPanel({
   title,
@@ -11,6 +12,54 @@ const OutputPanel = memo(function OutputPanel({
   children,
 }) {
   const hasOutput = useMemo(() => Boolean(output && output.length > 0), [output]);
+  const [copyState, setCopyState] = useState('idle');
+  const resetTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimerRef.current) {
+        window.clearTimeout(resetTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleCopy = async () => {
+    if (copyDisabled || !hasOutput) {
+      return;
+    }
+
+    if (resetTimerRef.current) {
+      window.clearTimeout(resetTimerRef.current);
+    }
+
+    setCopyState('copying');
+
+    try {
+      let ok = true;
+
+      if (typeof onCopy === 'function') {
+        const result = await onCopy();
+        if (typeof result === 'boolean') {
+          ok = result;
+        }
+      } else {
+        ok = await copyTextToClipboard(output);
+      }
+
+      if (ok) {
+        setCopyState('copied');
+        resetTimerRef.current = window.setTimeout(() => {
+          setCopyState('idle');
+        }, 1400);
+      } else {
+        setCopyState('idle');
+      }
+    } catch {
+      setCopyState('idle');
+    }
+  };
+
+  const copyLabel = copyState === 'copied' ? 'Copied' : 'Copy';
 
   return (
     <section className="ui-surface flex h-full flex-col gap-2 p-4">
@@ -20,11 +69,11 @@ const OutputPanel = memo(function OutputPanel({
           {actions}
           <button
             type="button"
-            onClick={onCopy}
+            onClick={handleCopy}
             disabled={copyDisabled || !hasOutput}
             className="ui-btn px-3 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Copy
+            {copyLabel}
           </button>
         </div>
       </header>

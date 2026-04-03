@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react';
 import TextPanel from '../../components/TextPanel.jsx';
 import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
+import CodeBlock from '../../components/CodeBlock.jsx';
 import { parseJwtToken } from '../../utils/formatters.js';
+import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 export default function JwtDecoderTool() {
   const [token, setToken] = useState('');
@@ -24,8 +26,8 @@ export default function JwtDecoderTool() {
   const combinedOutput = `${header}${header && payload ? '\n\n' : ''}${payload}`;
 
   const copyOutput = async () => {
-    if (!combinedOutput) return;
-    await navigator.clipboard.writeText(combinedOutput);
+    if (!combinedOutput) return false;
+    return copyTextToClipboard(combinedOutput);
   };
 
   return (
@@ -41,11 +43,11 @@ export default function JwtDecoderTool() {
             <div className="space-y-3">
               <div>
                 <p className="mb-1 text-xs uppercase tracking-[0.2em] text-slate-600">Header</p>
-                <pre>{header || 'Header appears here'}</pre>
+                <CodeBlock text={header || 'Header appears here'} />
               </div>
               <div>
                 <p className="mb-1 text-xs uppercase tracking-[0.2em] text-slate-600">Payload</p>
-                <pre>{payload || 'Payload appears here'}</pre>
+                <CodeBlock text={payload || 'Payload appears here'} />
               </div>
             </div>
           )}

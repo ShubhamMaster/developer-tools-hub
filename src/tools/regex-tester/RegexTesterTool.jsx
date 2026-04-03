@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.js';
+import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 function escapeHtml(value) {
   return value
@@ -74,7 +75,8 @@ export default function RegexTesterTool() {
 
   const preview = useMemo(() => buildPreview(text, matches), [text, matches]);
   const copyOutput = async () => {
-    await navigator.clipboard.writeText(matches.map((entry) => entry.value).join('\n'));
+    if (!matches.length) return false;
+    return copyTextToClipboard(matches.map((entry) => entry.value).join('\n'));
   };
 
   return (

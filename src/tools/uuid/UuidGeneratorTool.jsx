@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import { downloadTextFile } from '../../utils/download.js';
+import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 function createUuidV4Fallback() {
   const bytes = new Uint8Array(16);
@@ -50,8 +51,8 @@ export default function UuidGeneratorTool() {
   const regenerate = () => setBatch(generateBatch(Number(count) || 1));
 
   const copyOutput = async () => {
-    if (!output) return;
-    await navigator.clipboard.writeText(output);
+    if (!output) return false;
+    return copyTextToClipboard(output);
   };
 
   const downloadTxt = () => {
