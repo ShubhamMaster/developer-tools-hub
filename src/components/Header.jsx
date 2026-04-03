@@ -58,10 +58,17 @@ export default function Header({
             <button
               type="button"
               onClick={onToggleTheme}
-              className="ui-btn"
+              className={`theme-toggle ${theme === 'dark' ? 'theme-toggle-on' : ''}`}
+              role="switch"
+              aria-checked={theme === 'dark'}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {theme === 'dark' ? 'Light' : 'Dark'}
+              <span className="theme-toggle-track" aria-hidden="true">
+                <span className="theme-toggle-thumb" />
+              </span>
+              <span className="theme-toggle-label">
+                {theme === 'dark' ? 'Dark' : 'Light'}
+              </span>
             </button>
             <button
               type="button"
