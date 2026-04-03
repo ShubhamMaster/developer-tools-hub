@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.js';
-import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 function escapeHtml(value) {
   return value
@@ -74,10 +72,7 @@ export default function RegexTesterTool() {
   }, [debouncedText, debouncedPattern, debouncedFlags]);
 
   const preview = useMemo(() => buildPreview(text, matches), [text, matches]);
-  const copyOutput = async () => {
-    if (!matches.length) return false;
-    return copyTextToClipboard(matches.map((entry) => entry.value).join('\n'));
-  };
+  const copyText = useMemo(() => matches.map((entry) => entry.value).join('\n'), [matches]);
 
   return (
     <ToolShell
@@ -110,21 +105,18 @@ export default function RegexTesterTool() {
           />
         </label>
       }
+      outputMeta={error ? `Error: ${error}` : `${matches.length} match(es)`}
       output={
-        <OutputPanel
-          title="Matches"
-          output={matches.length ? `${matches.length} match(es)` : ''}
-          onCopy={copyOutput}
-          copyDisabled={!matches.length}
-          meta={error ? `Error: ${error}` : `${matches.length} match(es)`}
-        >
-          {error ? (
-            <span className="text-red-700">{error}</span>
-          ) : (
-            <pre dangerouslySetInnerHTML={{ __html: preview }} />
-          )}
-        </OutputPanel>
+        error ? (
+          <span className="text-red-700">{error}</span>
+        ) : matches.length ? (
+          <pre className="code-text" dangerouslySetInnerHTML={{ __html: preview }} />
+        ) : (
+          <span className="ui-muted">Matches appear here</span>
+        )
       }
+      outputCopyText={copyText}
+      outputCopyDisabled={!matches.length}
     />
   );
 }

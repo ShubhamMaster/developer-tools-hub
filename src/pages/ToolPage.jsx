@@ -3,7 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
 function titleFor(tool) {
-  return tool ? `Developer Tools Hub — ${tool.label}` : 'Developer Tools Hub';
+  return tool ? `Developer Tools Hub — ${tool.name}` : 'Developer Tools Hub';
 }
 
 function getCanonicalHref() {
@@ -16,7 +16,6 @@ function getCanonicalHref() {
 
 export default function ToolPage({
   toolsBySlug,
-  sectionsById,
   fallbackToolSlug,
 }) {
   const { toolSlug } = useParams();
@@ -29,17 +28,16 @@ export default function ToolPage({
     return fallbackToolSlug ? <Navigate to={`/tool/${fallbackToolSlug}`} replace /> : null;
   }
 
-  const sectionLabel = sectionsById.get(tool.section) || tool.section;
   const ToolComponent = tool.component;
 
   return (
-    <article className="flex min-w-0 flex-col gap-3" aria-label={`${tool.label} page`}>
+    <article className="flex min-w-0 flex-col gap-3" aria-label={`${tool.name} page`}>
       <Helmet>
         <title>{titleFor(tool)}</title>
-        <meta name="description" content={tool.description || `${tool.label} tool`} />
+        <meta name="description" content={tool.description || `${tool.name} tool`} />
         {getCanonicalHref() ? <link rel="canonical" href={getCanonicalHref()} /> : null}
         <meta property="og:title" content={titleFor(tool)} />
-        <meta property="og:description" content={tool.description || `${tool.label} tool`} />
+        <meta property="og:description" content={tool.description || `${tool.name} tool`} />
         <meta property="og:type" content="website" />
       </Helmet>
 
@@ -51,9 +49,11 @@ export default function ToolPage({
             </Link>
           </li>
           <li className="ui-muted">/</li>
-          <li className="ui-muted">{sectionLabel}</li>
+          <li className="ui-muted">{tool.category}</li>
           <li className="ui-muted">/</li>
-          <li className="text-slate-900 dark:text-slate-100">{tool.label}</li>
+          <li className="ui-muted">{tool.group}</li>
+          <li className="ui-muted">/</li>
+          <li className="text-slate-900 dark:text-slate-100">{tool.name}</li>
         </ol>
       </nav>
 
@@ -64,7 +64,7 @@ export default function ToolPage({
           </div>
         }
       >
-        <section id="tool-workspace" tabIndex={-1} aria-label={`${tool.label} workspace`} className="outline-none">
+        <section id="tool-workspace" tabIndex={-1} aria-label={`${tool.name} workspace`} className="outline-none">
           <ToolComponent />
         </section>
       </Suspense>

@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
-import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import { downloadTextFile } from '../../utils/download.js';
-import { copyTextToClipboard } from '../../utils/clipboard.js';
+import CodeBlock from '../../components/CodeBlock.jsx';
 
 function createUuidV4Fallback() {
   const bytes = new Uint8Array(16);
@@ -50,11 +49,6 @@ export default function UuidGeneratorTool() {
 
   const regenerate = () => setBatch(generateBatch(Number(count) || 1));
 
-  const copyOutput = async () => {
-    if (!output) return false;
-    return copyTextToClipboard(output);
-  };
-
   const downloadTxt = () => {
     if (!output) {
       return;
@@ -95,24 +89,19 @@ export default function UuidGeneratorTool() {
           Produces deterministic-size UUID batches with no external dependency.
         </div>
       }
-      output={
-        <OutputPanel
-          title="UUIDs"
-          output={output}
-          onCopy={copyOutput}
-          copyDisabled={!output}
-          meta={`${batch.length} values`}
-          actions={
-            <button
-              type="button"
-              onClick={downloadTxt}
-              disabled={!output}
-              className="ui-btn px-3 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Download
-            </button>
-          }
-        />
+      outputMeta={`${batch.length} values`}
+      output={output ? <CodeBlock text={output} /> : <span className="ui-muted">UUIDs appear here</span>}
+      outputCopyText={output}
+      outputCopyDisabled={!output}
+      outputActions={
+        <button
+          type="button"
+          onClick={downloadTxt}
+          disabled={!output}
+          className="ui-btn px-3 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Download
+        </button>
       }
     />
   );

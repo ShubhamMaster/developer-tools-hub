@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import TextPanel from '../../components/TextPanel.jsx';
-import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import CodeBlock from '../../components/CodeBlock.jsx';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue.js';
 import { downloadTextFile } from '../../utils/download.js';
-import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 const SAMPLE = '{"name":"Developer Tools Hub","version":1,"enabled":true}';
 
@@ -45,11 +43,6 @@ export default function JsonFormatterTool() {
     const chars = input.length.toLocaleString();
     return `${chars} chars`; 
   }, [input]);
-
-  const copyOutput = async () => {
-    if (!output) return false;
-    return copyTextToClipboard(output);
-  };
 
   const exportJson = () => {
     if (!output || error) {
@@ -125,11 +118,18 @@ export default function JsonFormatterTool() {
           placeholder="Paste JSON..."
         />
       }
+      outputMeta={meta}
       output={
-        <OutputPanel title="Output" output={output} onCopy={copyOutput} meta={meta} copyDisabled={!output}>
-          {error ? <span className="text-red-700">{error}</span> : output ? <CodeBlock text={output} /> : 'Output appears here'}
-        </OutputPanel>
+        error ? (
+          <span className="text-red-700">{error}</span>
+        ) : output ? (
+          <CodeBlock text={output} />
+        ) : (
+          <span className="ui-muted">Output appears here</span>
+        )
       }
+      outputCopyText={error ? '' : output}
+      outputCopyDisabled={Boolean(error) || !output}
     />
   );
 }

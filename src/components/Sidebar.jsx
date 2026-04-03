@@ -3,8 +3,7 @@ import ToolCard from './ToolCard.jsx';
 export default function Sidebar({
   variant = 'desktop',
   collapsed,
-  sections,
-  toolsBySection,
+  groupedTools,
   totalTools,
   visibleToolsCount,
 }) {
@@ -30,27 +29,40 @@ export default function Sidebar({
 
         <nav className="flex-1 overflow-auto p-2" aria-label="Tool categories">
           <div className="flex flex-col gap-3">
-            {sections.map((section) => {
-              const tools = toolsBySection.get(section.id) || [];
-              if (tools.length === 0) {
+            {Array.from(groupedTools.entries()).map(([category, groupMap]) => {
+              const total = Array.from(groupMap.values()).reduce((sum, items) => sum + items.length, 0);
+              if (!total) {
                 return null;
               }
 
               return (
-                <section key={section.id} className="px-1" aria-label={section.label}>
+                <section key={category} className="px-1" aria-label={category}>
                   <div className="mb-2 flex items-center justify-between gap-2">
-                    <h2 className="ui-label">{section.label}</h2>
-                    <span className="ui-badge">{tools.length}</span>
+                    <h2 className="ui-label">{category}</h2>
+                    <span className="ui-badge">{total}</span>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    {tools.map((tool) => (
-                      <ToolCard
-                        key={tool.id}
-                        to={`/tool/${tool.slug}`}
-                        label={tool.label}
-                        description={tool.description}
-                        onSelect={undefined}
-                      />
+
+                  <div className="flex flex-col gap-3">
+                    {Array.from(groupMap.entries()).map(([group, tools]) => (
+                      <section key={group} aria-label={group}>
+                        <div className="mb-1 flex items-center justify-between gap-2">
+                          <p className="text-[11px] font-medium tracking-[0.08em] text-slate-600 dark:text-slate-400">
+                            {group}
+                          </p>
+                          <span className="ui-badge">{tools.length}</span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          {tools.map((tool) => (
+                            <ToolCard
+                              key={tool.slug}
+                              to={`/tool/${tool.slug}`}
+                              label={tool.name}
+                              description={tool.description}
+                              onSelect={undefined}
+                            />
+                          ))}
+                        </div>
+                      </section>
                     ))}
                   </div>
                 </section>

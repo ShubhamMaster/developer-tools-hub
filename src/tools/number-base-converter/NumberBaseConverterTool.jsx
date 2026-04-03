@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
-import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import CodeBlock from '../../components/CodeBlock.jsx';
-import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 const BASES = [
   { label: 'Binary (2)', value: 2 },
@@ -42,11 +40,6 @@ export default function NumberBaseConverterTool() {
     };
   }, [input, fromBase]);
 
-  const copyOutput = async () => {
-    if (!output) return false;
-    return copyTextToClipboard(output);
-  };
-
   return (
     <ToolShell
       title="Number Base Converter"
@@ -72,10 +65,16 @@ export default function NumberBaseConverterTool() {
         </label>
       }
       output={
-        <OutputPanel title="Converted" output={output} onCopy={copyOutput} copyDisabled={!output}>
-          {error ? <span className="text-red-700">{error}</span> : output ? <CodeBlock text={output} /> : 'Converted values appear here'}
-        </OutputPanel>
+        error ? (
+          <span className="text-red-700">{error}</span>
+        ) : output ? (
+          <CodeBlock text={output} />
+        ) : (
+          <span className="ui-muted">Converted values appear here</span>
+        )
       }
+      outputCopyText={error ? '' : output}
+      outputCopyDisabled={Boolean(error) || !output}
     />
   );
 }

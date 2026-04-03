@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import TextPanel from '../../components/TextPanel.jsx';
-import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
-import { copyTextToClipboard } from '../../utils/clipboard.js';
+import CodeBlock from '../../components/CodeBlock.jsx';
 
 function splitWords(value) {
   return value
@@ -44,17 +43,13 @@ export default function CaseConverterTool() {
     );
   }, [input]);
 
-  const copyOutput = async () => {
-    if (!output) return false;
-    return copyTextToClipboard(output);
-  };
-
   return (
     <ToolShell
       title="Case Converter"
       description="Convert text into common programming and display casing styles."
       input={<TextPanel label="Input Text" value={input} onChange={setInput} placeholder="Type any phrase" />}
-      output={<OutputPanel title="Converted Cases" output={output} onCopy={copyOutput} copyDisabled={!output} />}
+      output={output ? <CodeBlock text={output} /> : <span className="ui-muted">Output appears here</span>}
+      outputCopyText={output}
     />
   );
 }

@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import TextPanel from '../../components/TextPanel.jsx';
-import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
-import { copyTextToClipboard } from '../../utils/clipboard.js';
+import CodeBlock from '../../components/CodeBlock.jsx';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -26,6 +25,7 @@ export default function ApiTesterTool() {
   const [method, setMethod] = useState('GET');
   const [headers, setHeaders] = useState('Content-Type: application/json');
   const [body, setBody] = useState('');
+  const [useProxy, setUseProxy] = useState(false);
   const [output, setOutput] = useState('');
   const [status, setStatus] = useState('Idle');
 
@@ -35,32 +35,73 @@ export default function ApiTesterTool() {
     setStatus('Loading...');
     setOutput('');
 
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: parseHeaders(headers),
-        body: canHaveBody && body ? body : undefined,
-      });
+    const startedAt = performance.now();
 
-      const text = await response.text();
-      setStatus(`${response.status} ${response.statusText}`);
+    try {
+      let responseText = '';
+      let responseStatus = 0;
+      let responseStatusText = '';
+      let durationMs = 0;
+
+      if (useProxy) {
+        const proxyResponse = await fetch('/__proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url,
+            method,
+            headers: parseHeaders(headers),
+            body: canHaveBody && body ? body : undefined,
+          }),
+        });
+
+        const proxyJson = await proxyResponse.json().catch(() => null);
+        if (!proxyResponse.ok || !proxyJson?.ok) {
+          const hint = proxyResponse.status === 404
+            ? 'Proxy endpoint not available. Use `npm run dev` (proxy is dev-only).'
+            : '';
+          throw new Error(proxyJson?.error || hint || `Proxy failed (${proxyResponse.status})`);
+        }
+
+        responseText = String(proxyJson.body ?? '');
+        responseStatus = Number(proxyJson.status) || 0;
+        responseStatusText = String(proxyJson.statusText ?? '');
+        durationMs = Number(proxyJson.durationMs) || 0;
+      } else {
+        const response = await fetch(url, {
+          method,
+          headers: parseHeaders(headers),
+          body: canHaveBody && body ? body : undefined,
+        });
+
+        responseText = await response.text();
+        responseStatus = response.status;
+        responseStatusText = response.statusText;
+        durationMs = Math.round(performance.now() - startedAt);
+      }
+
+      const timingSuffix = durationMs ? ` • ${durationMs}ms` : '';
+      setStatus(`${responseStatus} ${responseStatusText}${useProxy ? ' (via proxy)' : ''}${timingSuffix}`);
 
       try {
-        const json = JSON.parse(text);
+        const json = JSON.parse(responseText);
         setOutput(JSON.stringify(json, null, 2));
       } catch {
-        setOutput(text);
+        setOutput(responseText);
       }
     } catch (error) {
       setStatus('Request failed');
-      setOutput(error.message);
+
+      const message = String(error?.message || 'Request failed');
+      const maybeCorsHint = message.includes('Failed to fetch')
+        ? `${message}\n\nTip: This is often caused by CORS on live domains. Either use an API that sends CORS headers, or enable “Use dev proxy (CORS)” while running locally with \`npm run dev\`.`
+        : message;
+
+      setOutput(maybeCorsHint);
     }
   };
 
-  const copyOutput = async () => {
-    if (!output) return false;
-    return copyTextToClipboard(output);
-  };
+  const isError = status === 'Request failed';
 
   return (
     <ToolShell
@@ -79,6 +120,14 @@ export default function ApiTesterTool() {
               </option>
             ))}
           </select>
+          <label className="inline-flex items-center gap-2 text-xs ui-muted">
+            <input
+              type="checkbox"
+              checked={useProxy}
+              onChange={(event) => setUseProxy(event.target.checked)}
+            />
+            Use dev proxy (CORS)
+          </label>
           <button
             type="button"
             onClick={runRequest}
@@ -99,7 +148,18 @@ export default function ApiTesterTool() {
           {canHaveBody ? <TextPanel label="Body" value={body} onChange={setBody} placeholder="Request body" className="h-56" /> : null}
         </div>
       }
-      output={<OutputPanel title="Response" output={output} onCopy={copyOutput} meta={status} copyDisabled={!output} />}
+      outputMeta={status}
+      output={
+        !output ? (
+          <span className="ui-muted">Output appears here</span>
+        ) : isError ? (
+          <span className="text-red-700">{output}</span>
+        ) : (
+          <CodeBlock text={output} />
+        )
+      }
+      outputCopyText={output}
+      outputCopyDisabled={!output}
     />
   );
 }

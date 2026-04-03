@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react';
 import TextPanel from '../../components/TextPanel.jsx';
-import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import { downloadTextFile } from '../../utils/download.js';
-import { copyTextToClipboard } from '../../utils/clipboard.js';
+import CodeBlock from '../../components/CodeBlock.jsx';
 
 function escapeCsvCell(value, delimiter) {
   const raw = String(value ?? '');
@@ -44,11 +43,6 @@ export default function TextCsvTool() {
 
     return textToCsv(input, delimiter);
   }, [delimiter, input, mode]);
-
-  const copyOutput = async () => {
-    if (!output) return false;
-    return copyTextToClipboard(output);
-  };
 
   const downloadOutput = () => {
     if (!output) {
@@ -109,15 +103,10 @@ export default function TextCsvTool() {
       description="Import a .txt/.csv file and convert between plain text and CSV." 
       controls={controls}
       input={<TextPanel label="Input" value={input} onChange={setInput} placeholder="Paste text or CSV..." />}
-      output={
-        <OutputPanel
-          title="Output"
-          output={output}
-          onCopy={copyOutput}
-          copyDisabled={!output}
-          meta={output ? `${output.length.toLocaleString()} chars` : undefined}
-        />
-      }
+      output={output ? <CodeBlock text={output} /> : <span className="ui-muted">Output appears here</span>}
+      outputMeta={output ? `${output.length.toLocaleString()} chars` : undefined}
+      outputCopyText={output}
+      outputCopyDisabled={!output}
     />
   );
 }

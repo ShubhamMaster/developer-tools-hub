@@ -1,84 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom';
+import { lazy, useEffect, useMemo, useState } from 'react';
+import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import DeveloperInfo from './components/DeveloperInfo.jsx';
 import Header from './components/Header.jsx';
 import Sidebar from './components/Sidebar.jsx';
-import ToolLayout from './components/ToolLayout.jsx';
-import toolsConfig from './config/tools.json';
-import { toolLoaders } from './config/toolLoaders.js';
+import AppLayoutGrid from './components/AppLayout.jsx';
+import toolsConfig, { CATEGORY_ORDER } from './config/tools.js';
 import ToolPage from './pages/ToolPage.jsx';
-
-const TOOL_SECTIONS = [
-  { id: 'format', label: 'Format / Encode' },
-  { id: 'inspect', label: 'Inspect / Decode' },
-  { id: 'api', label: 'API / Testing' },
-  { id: 'generators', label: 'Generators' },
-  { id: 'converters', label: 'Converters' },
-];
-
-function HomePage({ tools, sectionsById }) {
-  const grouped = useMemo(() => {
-    const map = new Map();
-    tools.forEach((tool) => {
-      if (!map.has(tool.section)) {
-        map.set(tool.section, []);
-      }
-      map.get(tool.section).push(tool);
-    });
-    map.forEach((items) => items.sort((a, b) => a.label.localeCompare(b.label)));
-    return map;
-  }, [tools]);
-
-  return (
-    <article className="flex min-w-0 flex-col gap-5" aria-label="Home">
-      <Helmet>
-        <title>Developer Tools Hub</title>
-        <meta
-          name="description"
-          content="Fast, offline-ready developer utilities with a clean, readable workspace."
-        />
-      </Helmet>
-
-      <section className="ui-card p-5 sm:p-6" aria-labelledby="workspace-heading">
-        <h1 id="workspace-heading" className="text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">
-          Code-ready tools, one clean workspace
-        </h1>
-        <p className="ui-muted mt-2 max-w-3xl text-sm sm:text-base">
-          Minimal UI inspired by GitHub + Wikipedia: fast navigation, readable panels, and instant search.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2 text-xs" aria-label="Platform highlights">
-          <span className="ui-surface px-2.5 py-1">Fast</span>
-          <span className="ui-surface px-2.5 py-1">Offline-ready</span>
-          <span className="ui-surface px-2.5 py-1">Lightweight</span>
-        </div>
-      </section>
-
-      <section className="ui-card p-5 sm:p-6" aria-label="Tool directory">
-        <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">All tools</h2>
-        <div className="mt-4 grid gap-5 md:grid-cols-2">
-          {Array.from(grouped.entries()).map(([sectionId, items]) => (
-            <section key={sectionId} aria-label={sectionsById.get(sectionId) || sectionId}>
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <p className="ui-label">{sectionsById.get(sectionId) || sectionId}</p>
-                <span className="ui-badge">{items.length}</span>
-              </div>
-              <ul className="flex flex-col gap-1">
-                {items.map((tool) => (
-                  <li key={tool.id}>
-                    <Link className="ui-btn w-full justify-start" to={`/tool/${tool.slug}`}>
-                      {tool.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
-      </section>
-    </article>
-  );
-}
+import Dashboard from './pages/Dashboard.jsx';
 
 function NotFoundPage() {
   return (
@@ -100,8 +29,6 @@ function AppLayout({
   theme,
   setTheme,
   tools,
-  sections,
-  sectionsById,
   toolsBySlug,
   defaultToolSlug,
 }) {
@@ -118,29 +45,50 @@ function AppLayout({
     }
 
     return tools.filter((tool) => {
-      const labelMatch = tool.label.toLowerCase().includes(query);
+      const labelMatch = tool.name.toLowerCase().includes(query);
+      const categoryMatch = tool.category.toLowerCase().includes(query);
+      const groupMatch = tool.group.toLowerCase().includes(query);
       const keywordMatch = Array.isArray(tool.keywords)
         ? tool.keywords.some((keyword) => String(keyword).toLowerCase().includes(query))
         : false;
-      return labelMatch || keywordMatch;
+      return labelMatch || categoryMatch || groupMatch || keywordMatch;
     });
   }, [searchQuery, tools]);
 
-  const filteredBySection = useMemo(() => {
-    const grouped = new Map(sections.map((section) => [section.id, []]));
+  const groupedTools = useMemo(() => {
+    const map = new Map();
+
     visibleTools.forEach((tool) => {
-      if (!grouped.has(tool.section)) {
-        grouped.set(tool.section, []);
+      const category = tool.category || 'DevTools';
+      const group = tool.group || 'Tools';
+
+      if (!map.has(category)) {
+        map.set(category, new Map());
       }
-      grouped.get(tool.section).push(tool);
+      const groups = map.get(category);
+      if (!groups.has(group)) {
+        groups.set(group, []);
+      }
+      groups.get(group).push(tool);
     });
 
-    grouped.forEach((sectionTools) => {
-      sectionTools.sort((a, b) => a.label.localeCompare(b.label));
+    map.forEach((groups) => {
+      groups.forEach((items) => items.sort((a, b) => a.name.localeCompare(b.name)));
     });
 
-    return grouped;
-  }, [sections, visibleTools]);
+    const ordered = new Map();
+    CATEGORY_ORDER.forEach((category) => {
+      if (map.has(category)) {
+        ordered.set(category, map.get(category));
+      }
+    });
+    Array.from(map.keys())
+      .filter((category) => !ordered.has(category))
+      .sort((a, b) => a.localeCompare(b))
+      .forEach((category) => ordered.set(category, map.get(category)));
+
+    return ordered;
+  }, [visibleTools]);
 
   const totalTools = tools.length;
 
@@ -167,7 +115,7 @@ function AppLayout({
       />
 
       <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 px-3 py-5 sm:px-6 lg:px-8" role="main">
-        <ToolLayout
+        <AppLayoutGrid
           sidebarCollapsed={isSidebarCollapsed}
           drawerOpen={isMobileSidebarOpen}
           onDrawerClose={() => setIsMobileSidebarOpen(false)}
@@ -175,8 +123,7 @@ function AppLayout({
             <Sidebar
               variant="drawer"
               collapsed={false}
-              sections={sections}
-              toolsBySection={filteredBySection}
+              groupedTools={groupedTools}
               totalTools={totalTools}
               visibleToolsCount={visibleTools.length}
             />
@@ -185,21 +132,28 @@ function AppLayout({
             <Sidebar
               variant="desktop"
               collapsed={isSidebarCollapsed}
-              sections={sections}
-              toolsBySection={filteredBySection}
+              groupedTools={groupedTools}
               totalTools={totalTools}
               visibleToolsCount={visibleTools.length}
             />
           }
         >
           <Routes>
-            <Route index element={<HomePage tools={visibleTools} sectionsById={sectionsById} />} />
+            <Route
+              index
+              element={
+                <Dashboard
+                  groupedTools={groupedTools}
+                  totalTools={totalTools}
+                  visibleToolsCount={visibleTools.length}
+                />
+              }
+            />
             <Route
               path="tool/:toolSlug"
               element={
                 <ToolPage
                   toolsBySlug={toolsBySlug}
-                  sectionsById={sectionsById}
                   fallbackToolSlug={defaultToolSlug}
                 />
               }
@@ -207,26 +161,12 @@ function AppLayout({
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
 
-          <nav className="ui-card p-2 xl:hidden" aria-label="Tool tabs">
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {visibleTools.map((tool) => (
-                <NavLink
-                  key={tool.id}
-                  to={`/tool/${tool.slug}`}
-                  className={({ isActive }) => `ui-tab ${isActive ? 'ui-tab-active' : ''}`}
-                >
-                  {tool.label}
-                </NavLink>
-              ))}
-            </div>
-          </nav>
-
           <footer className="pb-2 text-right text-xs ui-muted">
             <button type="button" className="ui-btn" onClick={() => setIsDeveloperInfoOpen(true)}>
               Built by Shubham Dighe
             </button>
           </footer>
-        </ToolLayout>
+        </AppLayoutGrid>
 
         <DeveloperInfo open={isDeveloperInfoOpen} onClose={() => setIsDeveloperInfoOpen(false)} />
       </main>
@@ -257,13 +197,26 @@ export default function App() {
   }, [theme]);
 
   const tools = useMemo(() => {
+    const modules = import.meta.glob('./tools/**/*.jsx');
+
     return toolsConfig
-      .map((tool) => ({
-        ...tool,
-        slug: tool.slug || tool.id,
-        component: toolLoaders[tool.id],
-      }))
-      .filter((tool) => Boolean(tool.component));
+      .map((tool) => {
+        const toolSlug = tool.slug;
+        const componentPath = `./tools/${tool.component}`;
+        const loader = modules[componentPath];
+
+        if (!loader) {
+          return null;
+        }
+
+        return {
+          ...tool,
+          id: toolSlug,
+          componentPath,
+          component: lazy(loader),
+        };
+      })
+      .filter(Boolean);
   }, []);
 
   const toolsBySlug = useMemo(() => {
@@ -272,10 +225,6 @@ export default function App() {
     return map;
   }, [tools]);
 
-  const sectionsById = useMemo(() => {
-    return new Map(TOOL_SECTIONS.map((section) => [section.id, section.label]));
-  }, []);
-
   const defaultToolSlug = tools[0]?.slug;
 
   return (
@@ -283,8 +232,6 @@ export default function App() {
       theme={theme}
       setTheme={setTheme}
       tools={tools}
-      sections={TOOL_SECTIONS}
-      sectionsById={sectionsById}
       toolsBySlug={toolsBySlug}
       defaultToolSlug={defaultToolSlug}
     />

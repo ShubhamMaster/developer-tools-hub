@@ -1,33 +1,8 @@
-export default function ToolLayout({
-  sidebar,
-  drawerSidebar,
-  sidebarCollapsed = false,
-  drawerOpen = false,
-  onDrawerClose,
-  children,
-}) {
-  const gridClass = sidebarCollapsed
-    ? 'grid gap-5'
-    : 'grid gap-5 xl:grid-cols-[280px,1fr]';
-
+export default function ToolLayout({ left, right }) {
   return (
-    <div className={gridClass}>
-      {drawerOpen ? (
-        <div className="fixed inset-0 z-50 xl:hidden" role="dialog" aria-modal="true" aria-label="Tool navigation">
-          <button
-            type="button"
-            className="absolute inset-0 bg-slate-950/40"
-            aria-label="Close tool navigation"
-            onClick={onDrawerClose}
-          />
-          <div className="absolute left-0 top-0 h-full w-[86vw] max-w-sm p-3">
-            {drawerSidebar ?? sidebar}
-          </div>
-        </div>
-      ) : null}
-
-      {!sidebarCollapsed ? <div className="hidden min-w-0 xl:block">{sidebar}</div> : null}
-      <div className="min-w-0">{children}</div>
+    <div className="grid h-full min-w-0 grid-cols-1 items-stretch gap-4 md:gap-4 xl:gap-5 lg:grid-cols-2">
+      <div className="min-w-0 min-h-0">{left}</div>
+      <div className="min-w-0 min-h-0">{right}</div>
     </div>
   );
 }

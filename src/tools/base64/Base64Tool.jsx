@@ -1,10 +1,8 @@
 import { useMemo, useState } from 'react';
 import TextPanel from '../../components/TextPanel.jsx';
-import OutputPanel from '../../components/OutputPanel.jsx';
 import ToolShell from '../../components/ToolShell.jsx';
 import CodeBlock from '../../components/CodeBlock.jsx';
 import { safeBase64Decode, safeBase64Encode } from '../../utils/stringUtils.js';
-import { copyTextToClipboard } from '../../utils/clipboard.js';
 
 export default function Base64Tool() {
   const [input, setInput] = useState('hello world');
@@ -20,11 +18,6 @@ export default function Base64Tool() {
       return { output: '', error: e.message };
     }
   }, [input, mode]);
-
-  const copyOutput = async () => {
-    if (!output) return false;
-    return copyTextToClipboard(output);
-  };
 
   return (
     <ToolShell
@@ -42,10 +35,16 @@ export default function Base64Tool() {
       }
       input={<TextPanel label="Input" value={input} onChange={setInput} placeholder="Type plain text or Base64" />}
       output={
-        <OutputPanel title="Output" output={output} onCopy={copyOutput} copyDisabled={!output}>
-          {error ? <span className="text-red-700">{error}</span> : output ? <CodeBlock text={output} /> : 'Output appears here'}
-        </OutputPanel>
+        error ? (
+          <span className="text-red-700">{error}</span>
+        ) : output ? (
+          <CodeBlock text={output} />
+        ) : (
+          <span className="ui-muted">Output appears here</span>
+        )
       }
+      outputCopyText={error ? '' : output}
+      outputCopyDisabled={Boolean(error) || !output}
     />
   );
 }
