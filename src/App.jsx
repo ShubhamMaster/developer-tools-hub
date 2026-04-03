@@ -1,4 +1,4 @@
-import { lazy, useEffect, useMemo, useState } from 'react';
+import { lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import DeveloperInfo from './components/DeveloperInfo.jsx';
@@ -8,6 +8,25 @@ import AppLayoutGrid from './components/AppLayout.jsx';
 import toolsConfig, { CATEGORY_ORDER } from './config/tools.js';
 import ToolPage from './pages/ToolPage.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+
+const FAVORITES_KEY = 'dth-favorites';
+const RECENTS_KEY = 'dth-recents';
+const FAVORITES_LIMIT = 24;
+const RECENTS_LIMIT = 12;
+
+function loadList(key) {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const raw = window.localStorage.getItem(key);
+    const parsed = JSON.parse(raw || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 function NotFoundPage() {
   return (
@@ -31,6 +50,11 @@ function AppLayout({
   tools,
   toolsBySlug,
   defaultToolSlug,
+  favorites,
+  recents,
+  onToggleFavorite,
+  onAddRecent,
+  onClearRecents,
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -97,6 +121,22 @@ function AppLayout({
     setIsMobileSidebarOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    const match = location.pathname.match(/\/tool\/([^/]+)/);
+    if (!match) return;
+    const slug = match[1];
+    if (!toolsBySlug.has(slug)) return;
+    onAddRecent(slug);
+  }, [location.pathname, onAddRecent, toolsBySlug]);
+
+  const favoritesTools = useMemo(() => {
+    return favorites.map((slug) => toolsBySlug.get(slug)).filter(Boolean);
+  }, [favorites, toolsBySlug]);
+
+  const recentsTools = useMemo(() => {
+    return recents.map((slug) => toolsBySlug.get(slug)).filter(Boolean);
+  }, [recents, toolsBySlug]);
+
   return (
     <div className={`${theme === 'dark' ? 'theme-dark' : 'theme-light'}`}>
       <a href="#tool-workspace" className="skip-link">
@@ -126,6 +166,13 @@ function AppLayout({
               groupedTools={groupedTools}
               totalTools={totalTools}
               visibleToolsCount={visibleTools.length}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              favorites={favoritesTools}
+              recents={recentsTools}
+              favoriteSlugs={favorites}
+              onToggleFavorite={onToggleFavorite}
+              onClearRecents={onClearRecents}
             />
           }
           sidebar={
@@ -135,6 +182,13 @@ function AppLayout({
               groupedTools={groupedTools}
               totalTools={totalTools}
               visibleToolsCount={visibleTools.length}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              favorites={favoritesTools}
+              recents={recentsTools}
+              favoriteSlugs={favorites}
+              onToggleFavorite={onToggleFavorite}
+              onClearRecents={onClearRecents}
             />
           }
         >
@@ -188,6 +242,9 @@ export default function App() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
+  const [favorites, setFavorites] = useState(() => loadList(FAVORITES_KEY));
+  const [recents, setRecents] = useState(() => loadList(RECENTS_KEY));
+
   useEffect(() => {
     const isDark = theme === 'dark';
     document.documentElement.classList.toggle('dark', isDark);
@@ -195,6 +252,14 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
     window.localStorage.setItem('dth-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  }, [favorites]);
+
+  useEffect(() => {
+    window.localStorage.setItem(RECENTS_KEY, JSON.stringify(recents));
+  }, [recents]);
 
   const tools = useMemo(() => {
     const modules = import.meta.glob('./tools/**/*.jsx');
@@ -225,6 +290,29 @@ export default function App() {
     return map;
   }, [tools]);
 
+  const toggleFavorite = useCallback((slug) => {
+    setFavorites((current) => {
+      const next = new Set(current);
+      if (next.has(slug)) {
+        next.delete(slug);
+      } else {
+        next.add(slug);
+      }
+      return Array.from(next).slice(0, FAVORITES_LIMIT);
+    });
+  }, []);
+
+  const addRecent = useCallback((slug) => {
+    setRecents((current) => {
+      const next = [slug, ...current.filter((item) => item !== slug)];
+      return next.slice(0, RECENTS_LIMIT);
+    });
+  }, []);
+
+  const clearRecents = useCallback(() => {
+    setRecents([]);
+  }, []);
+
   const defaultToolSlug = tools[0]?.slug;
 
   return (
@@ -234,6 +322,11 @@ export default function App() {
       tools={tools}
       toolsBySlug={toolsBySlug}
       defaultToolSlug={defaultToolSlug}
+      favorites={favorites}
+      recents={recents}
+      onToggleFavorite={toggleFavorite}
+      onAddRecent={addRecent}
+      onClearRecents={clearRecents}
     />
   );
 }
