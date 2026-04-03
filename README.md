@@ -48,5 +48,14 @@ In development, the API Tester can route requests through `/__proxy` to avoid CO
 ## SEO
 Global metadata is defined in `index.html` and page-specific metadata is set with `react-helmet-async` inside the dashboard and tool pages.
 
+## Contributing
+Contributions are welcome. Please read the guidelines in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Code of Conduct
+This project follows the Contributor Covenant. See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## Security
+Please report vulnerabilities via [SECURITY.md](SECURITY.md).
+
 ## License
 MIT
