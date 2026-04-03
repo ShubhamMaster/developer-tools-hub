@@ -72,10 +72,14 @@ function AppLayout({
       const labelMatch = tool.name.toLowerCase().includes(query);
       const categoryMatch = tool.category.toLowerCase().includes(query);
       const groupMatch = tool.group.toLowerCase().includes(query);
+      const slugMatch = tool.slug.toLowerCase().includes(query);
+      const descriptionMatch = tool.description
+        ? tool.description.toLowerCase().includes(query)
+        : false;
       const keywordMatch = Array.isArray(tool.keywords)
         ? tool.keywords.some((keyword) => String(keyword).toLowerCase().includes(query))
         : false;
-      return labelMatch || categoryMatch || groupMatch || keywordMatch;
+      return labelMatch || categoryMatch || groupMatch || slugMatch || descriptionMatch || keywordMatch;
     });
   }, [searchQuery, tools]);
 

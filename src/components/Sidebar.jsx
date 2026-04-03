@@ -206,6 +206,11 @@ export default function Sidebar({
     );
   };
 
+  const toolRowsCount = useMemo(
+    () => rows.filter((row) => row.type === 'tool').length,
+    [rows],
+  );
+
   return (
     <aside
       className={isDrawer ? 'h-full' : 'xl:sticky xl:top-24'}
@@ -252,7 +257,7 @@ export default function Sidebar({
           />
         </div>
 
-        {(favorites.length || recents.length) ? (
+        {!isSearchActive && (favorites.length || recents.length) ? (
           <div className="border-b border-slate-200 px-3 py-3 dark:border-slate-800">
             {favorites.length ? (
               <section className="mb-3">
@@ -306,6 +311,12 @@ export default function Sidebar({
         ) : null}
 
         <nav className="flex min-h-0 flex-1 flex-col px-2 py-3" aria-label="Tool categories">
+          {isSearchActive ? (
+            <div className="mb-2 flex items-center justify-between px-1">
+              <p className="ui-label">Search results</p>
+              <span className="ui-badge">{toolRowsCount}</span>
+            </div>
+          ) : null}
           <div ref={listContainerRef} className="min-h-0 flex-1">
             {listSize.height > 0 && listSize.width > 0 ? (
               <List
@@ -315,6 +326,9 @@ export default function Sidebar({
                 overscanCount={6}
                 style={{ height: listSize.height, width: listSize.width }}
               />
+            ) : null}
+            {isSearchActive && toolRowsCount === 0 ? (
+              <div className="px-2 py-4 text-sm ui-muted">No tools match this search.</div>
             ) : null}
           </div>
         </nav>
