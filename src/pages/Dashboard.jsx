@@ -1,6 +1,14 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 
+function getCanonicalHref() {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  return window.location.href;
+}
+
 export default function Dashboard({ groupedTools, totalTools, visibleToolsCount }) {
   return (
     <article className="flex min-w-0 flex-col gap-5" aria-label="Dashboard">
@@ -8,7 +16,22 @@ export default function Dashboard({ groupedTools, totalTools, visibleToolsCount 
         <title>Developer Tools Hub</title>
         <meta
           name="description"
-          content="Fast, offline-ready developer utilities with a clean, readable workspace."
+          content="Developer Tools Hub — a local-first toolbox for JSON, JWT, Base64, hashing, and developer workflows."
+        />
+        {getCanonicalHref() ? <link rel="canonical" href={getCanonicalHref()} /> : null}
+        <meta property="og:title" content="Developer Tools Hub" />
+        <meta
+          property="og:description"
+          content="Developer Tools Hub — a local-first toolbox for JSON, JWT, Base64, hashing, and developer workflows."
+        />
+        <meta property="og:type" content="website" />
+        {getCanonicalHref() ? <meta property="og:url" content={getCanonicalHref()} /> : null}
+        <meta property="og:site_name" content="Developer Tools Hub" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Developer Tools Hub" />
+        <meta
+          name="twitter:description"
+          content="Developer Tools Hub — a local-first toolbox for JSON, JWT, Base64, hashing, and developer workflows."
         />
       </Helmet>
 
